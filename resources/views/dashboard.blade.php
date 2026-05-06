@@ -52,7 +52,9 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kalori</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Protein</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Karbo/Gula</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-red-500 uppercase">Aksi</th>
+                                    <th class="px-6 py-3 text-center w-32 text-xs font-medium text-red-500 uppercase">
+                                    AKSI
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
@@ -63,17 +65,19 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-bold">{{ number_format($log->calories, 0) }} kkal</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $log->protein }} g</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $log->sugar }} g</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
-    <td class="px-6 py-4 whitespace-nowrap text-sm">
-    <form action="{{ route('food.destroy', $log->id) }}" method="POST">
-        @csrf
-        @method('DELETE')
+                                        <td class="px-6 py-4 text-center w-32">
+        <div class="flex items-center justify-center">
+        <form action="{{ route('food.destroy', $log->id) }}" method="POST">
+            @csrf
+            @method('DELETE')
 
-        <button type="submit"
-            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
-            Hapus
-        </button>
-    </form>
+            <button type="submit"
+                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
+                Hapus
+            </button>
+        </form>
+
+    </div>
 </td>
                                     </tr>
                                 @endforeach

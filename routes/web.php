@@ -4,23 +4,34 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FoodController;
+use App\Models\UserProfile;
+use App\Models\FoodLog;
+use Carbon\Carbon;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// INI BAGIAN YANG KITA UBAH (Logika Dashboard)
 Route::get('/dashboard', function () {
-    // Mencari data profil milik user yang sedang login
-    $profile = auth()->user()->profile;
+    $user = auth()->user();
+    $profile = $user->profile;
 
-    // JIKA profil belum ada, arahkan ke halaman setup
+    // JIKA profil belum ada, paksa mengisi dulu
     if (!$profile) {
         return redirect()->route('profile.setup');
     }
 
-    // JIKA sudah ada, tampilkan dashboard dengan membawa data profil
-    return view('dashboard', compact('profile'));
+    // Hitung total kalori yang dikonsumsi HARI INI saja
+    $totalCaloriesToday = $user->foodLogs()
+        ->whereDate('consumed_at', Carbon::today())
+        ->sum('calories');
+
+    // Rumus BMR Sederhana untuk target harian (Bisa dikembangkan nanti)
+    // Di sini kita asumsikan target kalori harian standar adalah 2000 kkal
+    $targetCalories = 2000; 
+
+    // Lempar semua variabel ke view dashboard
+    return view('dashboard', compact('profile', 'totalCaloriesToday', 'targetCalories'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 

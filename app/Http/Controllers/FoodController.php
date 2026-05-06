@@ -15,7 +15,7 @@ class FoodController extends Controller
 
         // Jika user sudah mengetik sesuatu dan menekan tombol cari
         if ($query) {
-            $tokenResponse = Http::asForm()->withBasicAuth(
+            $tokenResponse = Http::withoutVerifying()->asForm()->withBasicAuth(
                 env('FATSECRET_CLIENT_ID'),
                 env('FATSECRET_CLIENT_SECRET')
             )->post('https://oauth.fatsecret.com/connect/token', [
@@ -86,4 +86,13 @@ class FoodController extends Controller
         // 4. Kembali ke halaman dashboard setelah berhasil
         return redirect()->route('dashboard');
     }
+
+    public function destroy($id)
+        {
+        $foodLog = auth()->user()->foodLogs()->findOrFail($id);
+
+        $foodLog->delete();
+
+        return redirect()->back()->with('success', 'Riwayat makanan berhasil dihapus.');
+        }
 }

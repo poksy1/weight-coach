@@ -75,9 +75,12 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/food/search', [FoodController::class, 'search'])->name('food.search');
-    
-    // Rute baru untuk memproses form penyimpanan makanan
+
+    // Route baru untuk memproses penyimpanan makanan
     Route::post('/food/log', [FoodController::class, 'store'])->name('food.log');
+
+    // Route untuk menghapus riwayat makanan
+    Route::delete('/food/{id}', [FoodController::class, 'destroy'])->name('food.destroy');
 });
 
 require __DIR__.'/auth.php';

@@ -46,4 +46,16 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // Relasi One-to-One (Satu User hanya punya 1 Profil Fisik)
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+    // Relasi One-to-Many (Satu User bisa punya banyak Catatan Makanan)
+    public function foodLogs()
+    {
+        return $this->hasMany(FoodLog::class);
+    }
 }

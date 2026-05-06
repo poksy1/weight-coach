@@ -52,6 +52,15 @@ Route::get('/dashboard', function () {
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::post('/water/add', function () {
+
+    session([
+        'water' => session('water', 0) + 250
+    ]);
+
+    return redirect()->back();
+
+})->name('water.add');
 
 // Rute bawaan Laravel Breeze untuk pengaturan akun
 Route::middleware('auth')->group(function () {

@@ -32,7 +32,18 @@
                     <a href="{{ route('food.search') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
                         + Catat Makanan
                     </a>
+                    <form action="{{ route('water.add') }}" method="POST">
+        @csrf
+
+        <button type="submit"
+            class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-600">
+            + 250ml Gelas Air
+        </button>
+    </form>
                 </div>
+                <p class="text-center mt-4 text-blue-600 font-bold">
+    Total Air Hari Ini: {{ session('water', 0) }} ml
+</p>
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">

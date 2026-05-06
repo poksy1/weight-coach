@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FoodController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -37,6 +38,17 @@ Route::middleware('auth')->group(function () {
     
     // Jalur untuk mengirim/menyimpan data dari form
     Route::post('/setup-profile', [UserProfileController::class, 'store'])->name('profile.store');
+});
+// Rute untuk mencari makanan (menggunakan metode GET agar keyword masuk di URL)
+Route::middleware('auth')->group(function () {
+    Route::get('/food/search', [FoodController::class, 'search'])->name('food.search');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/food/search', [FoodController::class, 'search'])->name('food.search');
+    
+    // Rute baru untuk memproses form penyimpanan makanan
+    Route::post('/food/log', [FoodController::class, 'store'])->name('food.log');
 });
 
 require __DIR__.'/auth.php';

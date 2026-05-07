@@ -9,11 +9,9 @@ class FoodController extends Controller
 {
     public function search(Request $request)
     {
-        // Menangkap teks yang diketik user dari form pencarian (misal: "Ayam Bakar")
         $query = $request->input('keyword'); 
-        $foods = []; // Default array kosong jika belum ada pencarian
+        $foods = []; // Default array kosong
 
-        // Jika user sudah mengetik sesuatu dan menekan tombol cari
         if ($query) {
             $tokenResponse = Http::withoutVerifying()->asForm()->withBasicAuth(
                 env('FATSECRET_CLIENT_ID'),
@@ -25,31 +23,33 @@ class FoodController extends Controller
 
             $accessToken = $tokenResponse->json('access_token');
 
-            $searchResponse = Http::withToken($accessToken)->get('https://platform.fatsecret.com/rest/server.api', [
+            $searchResponse = Http::withoutVerifying()->withToken($accessToken)->get('https://platform.fatsecret.com/rest/server.api', [
                 'method' => 'foods.search',
                 'search_expression' => $query,
                 'format' => 'json',
-                'max_results' => 5 // Kita ambil 5 data teratas
+                'max_results' => 5 
             ]);
 
-            // Mengambil isi data makanan
-            $result = $searchResponse->json('foods.food');
+            // --- BAGIAN YANG DIPERBAIKI ---
+            // Kita tampung dulu semua datanya mentah-mentah
+            $apiData = $searchResponse->json();
+            
+            // Kita ambil isi makanannya dengan cara array bertingkat (lebih aman dari dot notation)
+            $result = $apiData['foods']['food'] ?? null;
             
             // Penyesuaian khusus format FatSecret: 
-            // Jika hasil pencarian cuma 1 item, ubah formatnya agar tidak error saat dilooping (foreach)
             if ($result && isset($result['food_id'])) {
-                $foods = [$result];
+                $foods = [$result]; // Jika hasilnya cuma 1 makanan
             } else {
-                $foods = $result ?? [];
+                $foods = $result ?? []; // Jika hasilnya banyak makanan
             }
         }
 
-        // Lempar data hasil pencarian dan keywordnya ke file Blade
         return view('food-search', compact('foods', 'query'));
     }
 
-    public function store(Request $request)
-    {
+        public function store(Request $request)
+        {
         // 1. Validasi inputan form
         $request->validate([
             'food_name' => 'required|string',

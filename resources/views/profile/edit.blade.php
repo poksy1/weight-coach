@@ -24,6 +24,15 @@
                     @include('profile.partials.delete-user-form')
                 </div>
             </div>
+            <div class="mb-3">
+            <label for="goal" class="form-label fw-bold">Tujuan Penggunaan Aplikasi</label>
+            <select name="goal" id="goal" class="form-select" required>
+            <option value="lose">📉 Menurunkan Berat Badan (Defisit Kalori)</option>
+            <option value="maintain" selected>⚖️ Maintain Weight / Hidup Sehat (Kalori Seimbang)</option>
+            <option value="gain">📈 Menaikkan Berat Badan (Surplus Kalori)</option>
+            </select>
+            <div class="form-text">Pilih "Maintain Weight" jika Anda hanya ingin memantau gizi tanpa mengubah berat badan.</div>
+            </div>
         </div>
     </div>
 </x-app-layout>

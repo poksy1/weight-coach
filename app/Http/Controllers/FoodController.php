@@ -87,6 +87,32 @@ class FoodController extends Controller
         return redirect()->route('dashboard');
     }
 
+    public function storeCustom(Request $request)
+    {
+        // 1. Validasi inputan form
+        $request->validate([
+            'food_name' => 'required|string|max:255',
+            'meal_type' => 'required|in:Breakfast,Lunch,Dinner,Snack',
+            'calories'  => 'required|numeric|min:0',
+            'protein'   => 'required|numeric|min:0',
+            'sugar'     => 'required|numeric|min:0',
+        ]);
+
+        // 2. Simpan ke database FoodLog
+        $user = auth()->user();
+        $user->foodLogs()->create([
+            'food_name'   => $request->food_name . ' (Manual)', // Tambahkan tag "(Manual)" agar user tahu
+            'meal_type'   => $request->meal_type,
+            'calories'    => $request->calories,
+            'protein'     => $request->protein,
+            'sugar'       => $request->sugar,
+            'consumed_at' => \Carbon\Carbon::now(),
+        ]);
+
+        // 3. Kembalikan ke halaman dashboard dengan pesan sukses
+        return redirect()->route('dashboard')->with('success', 'Makanan custom berhasil dicatat!');
+    }
+
     public function destroy($id)
         {
         $foodLog = auth()->user()->foodLogs()->findOrFail($id);

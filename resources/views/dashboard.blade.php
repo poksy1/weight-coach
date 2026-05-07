@@ -1,129 +1,122 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Ringkasan Kesehatanmu') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8 bg-gray-50 min-h-screen">
+        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             
-            @php
-                $todayFoods = auth()->user()->foodLogs()->whereDate('consumed_at', \Carbon\Carbon::today())->get();
-                $totalSugar = $todayFoods->sum('sugar');
-            @endphp
-
-            @if($totalSugar >= 40)
-                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded shadow-sm" role="alert">
-                    <p class="font-bold">⚠️ Peringatan Konsumsi Gula</p>
-                    <p>Total gula Anda hari ini mencapai {{ $totalSugar }}g (Mendekati batas maksimal WHO 50g/hari). Kurangi makanan manis!</p>
-                </div>
-            @endif
-
-            @if($remainingCalorie < 0)
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm" role="alert">
-                    <p class="font-bold">🚨 Batas Kalori Terlewati</p>
-                    <p>Anda telah mengonsumsi kalori melebihi target harian. Tetap aktif dan perbanyak minum air putih!</p>
-                </div>
-            @endif
-
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
-                    <div class="p-4 bg-blue-50 rounded-lg">
-                        <h4 class="text-sm font-medium text-blue-600 uppercase">Berat Saat Ini</h4>
-                        <p class="text-3xl font-bold">{{ auth()->user()->weight ?? '-' }} kg</p>
-                    </div>
-                    <div class="p-4 bg-green-50 rounded-lg">
-                        <h4 class="text-sm font-medium text-green-600 uppercase">Fokus / Goal</h4>
-                        <p class="text-xl font-bold mt-1 uppercase">{{ auth()->user()->goal ?? 'MAINTAIN' }}</p>
-                    </div>
-                    <div class="p-4 bg-orange-50 rounded-lg">
-                        <h4 class="text-sm font-medium text-orange-600 uppercase">Terkonsumsi</h4>
-                        <p class="text-3xl font-bold text-orange-600">{{ number_format($caloriesConsumedToday, 0) }}</p>
-                        <p class="text-xs text-orange-500">dari {{ number_format($targetCalorie, 0) }} kkal</p>
-                    </div>
-                    <div class="p-4 bg-purple-50 rounded-lg">
-                        <h4 class="text-sm font-medium text-purple-600 uppercase">Sisa Kalori</h4>
-                        <p class="text-3xl font-bold text-purple-600">{{ number_format(max(0, $remainingCalorie), 0) }}</p>
-                    </div>
-                </div>
-
-                <div class="mt-6">
-                    <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
-                        <span>Progress Kalori Harian</span>
-                        <span>{{ round($progressPercentage) }}%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-4">
-                        <div class="h-4 rounded-full transition-all duration-500
-                            @if($progressPercentage > 100) bg-red-500 
-                            @elseif($progressPercentage > 85) bg-yellow-500 
-                            @else bg-green-500 @endif" 
-                            style="width: {{ min(100, $progressPercentage) }}%">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-8 flex flex-wrap justify-center gap-4">
-                    <a href="{{ route('food.search') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700">
-                        + Catat Makanan
-                    </a>
-                    
-                    <form action="{{ route('water.add') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-600">
-                            + 250ml Gelas Air
-                        </button>
-                    </form>
-                </div>
-                
-                <p class="text-center mt-4 text-blue-600 font-bold">
-                    Total Air Hari Ini: {{ session('water', 0) }} ml
+            <div class="flex justify-between items-end mb-8 px-4 sm:px-0">
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">
+                    Hello, {{ explode(' ', auth()->user()->name)[0] }}!
+                </h1>
+                <p class="text-sm font-medium text-gray-500">
+                    {{ \Carbon\Carbon::now()->translatedFormat('l, F d, Y') }}
                 </p>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <h3 class="text-lg font-bold mb-4 text-gray-700">Riwayat Makan Hari Ini</h3>
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8 mb-8 mx-4 sm:mx-0">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-bold text-gray-800">Today's Progress</h2>
+                </div>
+                
+                <div class="mb-8">
+                    <span class="text-5xl font-extrabold text-indigo-600">{{ number_format($caloriesConsumedToday, 0) }}</span>
+                    <span class="text-lg font-medium text-gray-400 ml-1">cal of {{ number_format($targetCalorie, 0) }} cal</span>
+                </div>
 
-                @if($todayFoods->count() > 0)
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Makanan</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Waktu</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kalori</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Protein</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Gula</th>
-                                    <th class="px-6 py-3 text-center w-32 text-xs font-medium text-red-500 uppercase">AKSI</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($todayFoods as $log)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{{ $log->food_name }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 uppercase">{{ $log->meal_type }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-orange-600 font-bold">{{ number_format($log->calories, 0) }} kkal</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $log->protein }} g</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $log->sugar }} g</td>
-                                        <td class="px-6 py-4 text-center w-32">
-                                            <form action="{{ route('food.destroy', $log->id) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">
-                                                    Hapus
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                <div class="space-y-5">
+                    @php 
+                        $proteinTotal = $dailyFoods->sum('protein');
+                        $proteinTarget = 100; // Standar visualisasi
+                        $proteinPercent = min(100, ($proteinTotal / $proteinTarget) * 100);
+                    @endphp
+                    <div>
+                        <div class="flex justify-between text-sm font-bold mb-1">
+                            <span class="text-gray-700">Protein</span>
+                            <span class="text-gray-500">{{ $proteinTotal }}g / {{ $proteinTarget }}g</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2.5">
+                            <div class="bg-indigo-500 h-2.5 rounded-full" style="width: {{ $proteinPercent }}%"></div>
+                        </div>
                     </div>
-                @else
-                    <div class="text-center py-4 text-gray-500 bg-gray-50 rounded">
-                        Belum ada makanan yang dicatat hari ini. Yuk, mulai catat makananmu!
+
+                    @php 
+                        $sugarTotal = $dailyFoods->sum('sugar');
+                        $sugarTarget = 50; // Batas WHO
+                        $sugarPercent = min(100, ($sugarTotal / $sugarTarget) * 100);
+                    @endphp
+                    <div>
+                        <div class="flex justify-between text-sm font-bold mb-1">
+                            <span class="text-gray-700">Sugar (Gula)</span>
+                            <span class="text-gray-500">{{ $sugarTotal }}g / {{ $sugarTarget }}g</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2.5">
+                            <div class="bg-pink-500 h-2.5 rounded-full" style="width: {{ $sugarPercent }}%"></div>
+                        </div>
                     </div>
-                @endif
+                </div>
+            </div>
+
+            <div class="px-4 sm:px-0 mb-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-800">Today's Meals</h2>
+                <a href="{{ route('food.search') }}" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center">
+                    + Add Meal
+                </a>
+            </div>
+
+            @if($dailyFoods->count() > 0)
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 px-4 sm:px-0">
+                    @foreach($dailyFoods as $food)
+                        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                            <div class="h-40 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center relative">
+                                <span class="text-4xl">🍽️</span>
+                                <form action="{{ route('food.destroy', $food->id) }}" method="POST" class="absolute top-3 right-3">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="bg-white text-red-500 hover:bg-red-500 hover:text-white rounded-full w-8 h-8 flex items-center justify-center shadow transition">
+                                        ✕
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <div class="p-5 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <p class="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">{{ $food->meal_type }}</p>
+                                    <h3 class="text-lg font-bold text-gray-900 leading-tight mb-4">{{ $food->food_name }}</h3>
+                                </div>
+                                
+                                <div class="flex justify-between items-end border-t border-gray-50 pt-4 mt-auto">
+                                    <div>
+                                        <p class="text-xl font-extrabold text-gray-800">{{ number_format($food->calories, 0) }}</p>
+                                        <p class="text-xs font-medium text-gray-400">calories</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-lg font-bold text-gray-800">{{ $food->protein }}g</p>
+                                        <p class="text-xs font-medium text-gray-400">protein</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="mx-4 sm:mx-0 bg-white rounded-3xl border border-dashed border-gray-300 p-10 text-center">
+                    <span class="text-4xl block mb-3">🍳</span>
+                    <p class="text-gray-500 font-medium">Belum ada makanan hari ini.</p>
+                    <a href="{{ route('food.search') }}" class="mt-4 inline-block bg-indigo-600 text-white font-bold py-2 px-6 rounded-full hover:bg-indigo-700 transition">
+                        Catat Sekarang
+                    </a>
+                </div>
+            @endif
+
+            <div class="mt-8 bg-blue-50 rounded-3xl p-6 mx-4 sm:mx-0 flex justify-between items-center border border-blue-100">
+                <div>
+                    <h3 class="font-bold text-blue-800 mb-1">Water Intake</h3>
+                    <p class="text-blue-600 font-medium">{{ session('water', 0) }} ml / 2000 ml</p>
+                </div>
+                <form action="{{ route('water.add') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white w-12 h-12 rounded-full font-bold shadow-md text-xl flex items-center justify-center">
+                        +
+                    </button>
+                </form>
             </div>
 
         </div>

@@ -17,13 +17,31 @@ Route::get('/', function () {
 // ==========================================
 Route::get('/dashboard', function () {
     $user = auth()->user();
+    
+    // Ambil target kalori dinamis milik user (default 2000 jika kosong)
     $targetCalorie = $user->daily_calorie_target ?? 2000;
     
-    // Ambil makanan khusus hari ini
-    $dailyFoods = $user->foodLogs()->whereDate('consumed_at', Carbon::today())->get();
+    // Ambil data makanan khusus hari ini
+    $dailyFoods = $user->foodLogs()->whereDate('consumed_at', \Carbon\Carbon::today())->get();
+    
+    // Hitung total kalori, gula, dan sisa kalori hari ini
     $caloriesConsumedToday = $dailyFoods->sum('calories');
+    $totalSugar = $dailyFoods->sum('sugar');
+    $remainingCalorie = $targetCalorie - $caloriesConsumedToday;
+    
+    // Hitung persentase untuk animasi Progress Ring (maksimal 100%)
+    $percentage = ($targetCalorie > 0) ? ($caloriesConsumedToday / $targetCalorie) * 100 : 0;
+    $progressPercentage = min(100, $percentage); 
 
-    return view('dashboard', compact('targetCalorie', 'dailyFoods', 'caloriesConsumedToday'));
+    // Kirim SEMUA variabel yang dibutuhkan ke file blade
+    return view('dashboard', compact(
+        'targetCalorie', 
+        'dailyFoods', 
+        'caloriesConsumedToday',
+        'remainingCalorie',
+        'totalSugar',
+        'progressPercentage'
+    ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // ==========================================
@@ -87,6 +105,10 @@ Route::get('/analytics', function () {
     return view('analytics', compact('bmi', 'bmiCategory', 'bmiColor', 'chartLabels', 'chartData', 'targetCalorie'));
 })->middleware(['auth', 'verified'])->name('analytics');
 
+
+Route::get('/meal-plans', function () {
+    return view('meal-plans');
+})->middleware(['auth', 'verified'])->name('meal-plans');
 
 // ==========================================
 // RUTE LAINNYA (Tetap sama seperti aslinya)

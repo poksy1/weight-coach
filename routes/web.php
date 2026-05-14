@@ -141,7 +141,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/food/custom', [FoodController::class, 'storeCustom'])->name('food.custom');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'nutritionist'])->group(function () {
 
     Route::get('/nutritionist/dashboard', function () {
         return view('nutritionist.dashboard');

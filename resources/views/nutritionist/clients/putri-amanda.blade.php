@@ -66,21 +66,34 @@
     <main class="ml-[245px] flex-1 px-10 py-8 w-full overflow-y-auto">
 
         <!-- HEADER -->
-        <div class="flex items-center gap-4 mb-8">
+        <div class="flex items-center justify-between mb-8">
 
-            <a href="{{ route('nutritionist.dashboard') }}"
-               class="text-emerald-700 text-2xl">
-                ←
-            </a>
+            <div class="flex items-center gap-4">
 
-            <div>
-                <h1 class="text-[42px] leading-tight font-black text-emerald-900">
-                    Profil Klien: Putri Amanda
-                </h1>
+                <a href="{{ route('nutritionist.dashboard') }}"
+                   class="text-emerald-700 text-2xl">
+                    ←
+                </a>
 
-                <p class="text-slate-500 mt-2 text-base">
-                    Program Manajemen Berat Badan
-                </p>
+                <div>
+                    <h1 class="text-[42px] leading-tight font-black text-emerald-950">
+                        Profil Klien: Putri Amanda
+                    </h1>
+
+                    <p class="text-slate-500 mt-2 text-base">
+                        Program: Manajemen Berat Badan
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="flex items-center gap-4 text-slate-500">
+                <span>📅</span>
+                <span>🔔</span>
+
+                <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-black">
+                    PA
+                </div>
             </div>
 
         </div>
@@ -89,15 +102,21 @@
         <div class="grid grid-cols-12 gap-6 w-full">
 
             <!-- GRAFIK -->
-            <div class="col-span-8 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[430px]">
+            <section class="col-span-8 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[430px]">
 
-                <div class="flex items-center justify-between mb-5">
+                <div class="flex items-start justify-between mb-5">
 
-                    <h2 class="text-[30px] leading-tight font-black text-slate-950">
-                        Kepatuhan Nutrisi
-                    </h2>
+                    <div>
+                        <h2 class="text-[30px] leading-tight font-black text-slate-950">
+                            Kepatuhan Program Nutrisi
+                        </h2>
 
-                    <div class="flex gap-5 text-sm">
+                        <p class="text-slate-500 text-sm mt-3">
+                            Pemantauan kepatuhan program nutrisi selama 7 hari terakhir.
+                        </p>
+                    </div>
+
+                    <div class="flex gap-5 text-sm mt-2">
 
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 bg-emerald-700 rounded-full"></div>
@@ -113,26 +132,22 @@
 
                 </div>
 
-                <p class="text-slate-500 text-sm mb-4">
-                    Pemantauan kepatuhan nutrisi Putri Amanda selama 7 hari terakhir.
-                </p>
-
-                <div class="h-[280px] mt-6">
+                <div class="h-[285px] mt-6">
                     <canvas id="grafikPutri"></canvas>
                 </div>
 
-            </div>
+            </section>
 
-            <!-- CARD KANAN -->
-            <div class="col-span-4 space-y-6">
+            <!-- CARD STATUS -->
+            <section class="col-span-4 space-y-6">
 
                 <div class="bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[260px]">
 
-                    <p class="text-xs text-slate-400 font-bold uppercase tracking-wide">
+                    <p class="text-sm text-slate-400 font-bold">
                         Rata-rata Defisit Kalori
                     </p>
 
-                    <h3 class="text-[88px] leading-none font-black text-emerald-700 mt-5">
+                    <h3 class="text-[86px] leading-none font-black text-emerald-700 mt-5">
                         -124
                     </h3>
 
@@ -141,17 +156,17 @@
                     </p>
 
                     <div class="mt-6 bg-emerald-50 text-emerald-700 font-bold rounded-xl px-5 py-4">
-                        Sesuai target penurunan berat badan
+                        Sesuai target program
                     </div>
 
                 </div>
 
                 <a href="{{ route('nutritionist.meal-plans') }}"
-                   class="block w-full bg-emerald-800 hover:bg-emerald-900 text-white text-center py-5 rounded-2xl font-black text-lg">
-                    Tetapkan Rencana Makan Baru
+                   class="block w-full bg-emerald-800 hover:bg-emerald-900 text-white text-center py-5 rounded-2xl font-black text-lg shadow-sm">
+                    Atur Rencana Makan
                 </a>
 
-            </div>
+            </section>
 
         </div>
 
@@ -159,7 +174,7 @@
         <div class="grid grid-cols-12 gap-6 mt-6">
 
             <!-- CATATAN PROFESIONAL -->
-            <div class="col-span-7 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[420px]">
+            <section class="col-span-7 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[420px]">
 
                 <div class="flex items-start justify-between mb-6">
 
@@ -176,13 +191,13 @@
                 <div class="bg-slate-50 rounded-2xl p-6 text-base leading-8 text-slate-700">
 
                     <p>
-                        Putri Amanda menunjukkan kepatuhan yang sangat baik terhadap pola makan rendah kalori.
-                        Konsumsi gula harian mulai menurun dan target protein tercapai secara konsisten.
-                        Pola makan siang juga lebih stabil dibandingkan minggu sebelumnya.
+                        Putri Amanda menunjukkan kepatuhan yang sangat baik terhadap program manajemen berat badan.
+                        Pola makan harian mulai lebih teratur, konsumsi gula menurun, dan target protein tercapai
+                        secara konsisten dalam beberapa hari terakhir.
                     </p>
 
                     <div class="border-l-4 border-slate-300 pl-5 italic mt-6 text-slate-600">
-                        Fokus berikutnya adalah meningkatkan hidrasi menjadi 3 liter per hari,
+                        Fokus berikutnya adalah meningkatkan asupan cairan menjadi 3 liter per hari,
                         menjaga konsistensi makan malam sehat, dan mengurangi camilan tinggi gula pada malam hari.
                     </div>
 
@@ -191,7 +206,7 @@
                 <div class="mt-6">
 
                     <p class="text-sm font-bold text-slate-600 mb-2">
-                        Pembaruan Cepat
+                        Catatan Tambahan
                     </p>
 
                     <input type="text"
@@ -200,10 +215,10 @@
 
                 </div>
 
-            </div>
+            </section>
 
             <!-- MAKANAN TERBARU -->
-            <div class="col-span-5 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[420px]">
+            <section class="col-span-5 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[420px]">
 
                 <div class="flex items-start justify-between mb-8">
 
@@ -294,16 +309,16 @@
                 </div>
 
                 <button class="w-full mt-8 border border-slate-200 rounded-xl py-3 text-sm font-bold text-slate-600">
-                    Lihat Buku Harian Makanan
+                    Lihat Riwayat Makanan
                 </button>
 
-            </div>
+            </section>
 
-            <!-- MAKRO -->
-            <div class="col-span-4 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[220px]">
+            <!-- DISTRIBUSI MAKRONUTRIEN -->
+            <section class="col-span-4 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[220px]">
 
                 <h3 class="text-xl font-black text-slate-950 mb-5">
-                    Distribusi Makro Aktual
+                    Distribusi Makronutrien
                 </h3>
 
                 <div class="space-y-4 text-sm">
@@ -324,7 +339,7 @@
                             <span class="font-bold">145g / 180g</span>
                         </div>
                         <div class="h-2 bg-slate-100 rounded-full">
-                            <div class="h-2 bg-blue-500 rounded-full w-[92%]"></div>
+                            <div class="h-2 bg-blue-500 rounded-full w-[80%]"></div>
                         </div>
                     </div>
 
@@ -340,13 +355,13 @@
 
                 </div>
 
-            </div>
+            </section>
 
-            <!-- HIDRASI -->
-            <div class="col-span-4 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[220px]">
+            <!-- ASUPAN CAIRAN -->
+            <section class="col-span-4 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[220px]">
 
                 <h3 class="text-xl font-black text-slate-950 mb-5">
-                    Catatan Hidrasi Harian
+                    Asupan Cairan Harian
                 </h3>
 
                 <p class="text-[56px] leading-none font-black text-blue-600">
@@ -361,28 +376,28 @@
                     <div class="h-2 bg-blue-500 rounded-full w-[93%]"></div>
                 </div>
 
-            </div>
+            </section>
 
-            <!-- TARGET MINGGUAN -->
-            <div class="col-span-4 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[220px]">
+            <!-- PENCAPAIAN MINGGUAN -->
+            <section class="col-span-4 bg-white rounded-3xl p-7 shadow-sm border border-slate-100 min-h-[220px]">
 
                 <h3 class="text-xl font-black text-slate-950 mb-5">
-                    Target Mingguan
+                    Pencapaian Mingguan
                 </h3>
 
                 <p class="text-[56px] leading-none font-black text-emerald-700">
-                    80%
+                    92%
                 </p>
 
                 <p class="text-slate-500 mt-3">
-                    Target nutrisi tercapai minggu ini.
+                    Kepatuhan program nutrisi minggu ini.
                 </p>
 
                 <div class="mt-5 h-2 bg-slate-100 rounded-full">
-                    <div class="h-2 bg-emerald-700 rounded-full w-[80%]"></div>
+                    <div class="h-2 bg-emerald-700 rounded-full w-[92%]"></div>
                 </div>
 
-            </div>
+            </section>
 
         </div>
 

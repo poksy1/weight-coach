@@ -141,6 +141,28 @@ Route::middleware('auth')->group(function () {
     Route::post('/food/custom', [FoodController::class, 'storeCustom'])->name('food.custom');
 });
 
-require __DIR__.'/auth.php';
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/nutritionist/dashboard', function () {
+        return view('nutritionist.dashboard');
+    })->name('nutritionist.dashboard');
+
+    Route::get('/nutritionist/meal-plans', function () {
+        return view('nutritionist.meal-plans');
+    })->name('nutritionist.meal-plans');
+
+    Route::get('/nutritionist/clients/putri-amanda', function () {
+        return view('nutritionist.clients.putri-amanda');
+    })->name('nutritionist.putri');
+
+    Route::get('/nutritionist/clients/nanda-nabila', function () {
+        return view('nutritionist.clients.nanda-nabila');
+    })->name('nutritionist.nanda');
+
+    Route::get('/nutritionist/clients/deta-amelia', function () {
+        return view('nutritionist.clients.deta-amelia');
+    })->name('nutritionist.deta');
+
+});
 
 require __DIR__.'/auth.php';

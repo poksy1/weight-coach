@@ -41,17 +41,17 @@
                     🍽 Rencana Makan
                 </a>
 
-                <a href="#"
+                <a href="{{ route('nutritionist.water') }}"
                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50">
                     ♢ Pantau Air
                 </a>
 
-                <a href="#"
+                <a href="{{ route('nutritionist.progress') }}"
                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50">
                     ⌁ Progress
                 </a>
 
-                <a href="#"
+                <a href="{{ route('nutritionist.settings') }}"
                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50">
                     ⚙ Pengaturan
                 </a>
@@ -120,7 +120,7 @@
                 <div class="flex justify-between mt-3">
 
                     <h3 class="text-5xl font-black text-emerald-900">
-                        42
+                       {{ $activeClients }}
                     </h3>
 
                     <div class="text-5xl text-emerald-100">
@@ -145,7 +145,7 @@
                 <div class="flex justify-between mt-3">
 
                     <h3 class="text-5xl font-black text-emerald-900">
-                        12
+                       {{ $pendingMessages }}
                     </h3>
 
                     <div class="text-5xl text-emerald-100">
@@ -168,7 +168,7 @@
                 </p>
 
                 <h3 class="text-xl font-black text-emerald-950 mt-3">
-                    Putri Amanda
+                    {{ $nextConsultation }}
                 </h3>
 
                 <p class="text-sm text-slate-500">
@@ -241,199 +241,107 @@
 
                 <tbody class="divide-y divide-slate-100">
 
-                    <!-- PUTRI -->
-                    <tr>
+    @foreach ($clients as $client)
 
-                        <td class="py-5">
+        <tr>
 
-                            <div class="flex items-center gap-3">
+            <td class="py-5">
 
-                                <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800 font-black">
-                                    PA
-                                </div>
+                <div class="flex items-center gap-3">
 
-                                <div>
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800 font-black">
 
-                                    <p class="font-bold">
-                                        Putri Amanda
-                                    </p>
+                        {{ strtoupper(substr($client->name, 0, 1)) }}
+                        {{ strtoupper(substr(explode(' ', $client->name)[1] ?? '', 0, 1)) }}
 
-                                    <p class="text-xs text-slate-400">
-                                        Diperbarui 2 jam lalu
-                                    </p>
+                    </div>
 
-                                </div>
+                    <div>
 
-                            </div>
+                        <p class="font-bold">
+                            {{ $client->name }}
+                        </p>
 
-                        </td>
+                        <p class="text-xs text-slate-400">
+                            Diperbarui {{ $client->updated_at->diffForHumans() }}
+                        </p>
 
-                        <td>
-                            Manajemen Berat Badan
-                        </td>
+                    </div>
 
-                        <td>
+                </div>
 
-                            <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">
-                                Rendah
-                            </span>
+            </td>
 
-                        </td>
+            <td>
+                {{ $client->program }}
+            </td>
 
-                        <td>
+            <td>
 
-                            <p class="text-xs text-slate-500 mb-1">
-                                92% target
-                            </p>
+                @if ($client->risk_level === 'low')
 
-                            <div class="w-32 h-2 bg-slate-100 rounded-full">
+                    <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">
+                        Rendah
+                    </span>
 
-                                <div class="w-[92%] h-2 bg-emerald-700 rounded-full"></div>
+                @elseif ($client->risk_level === 'moderate')
 
-                            </div>
+                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">
+                        Sedang
+                    </span>
 
-                        </td>
+                @else
 
-                        <td>
+                    <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold">
+                        Tinggi
+                    </span>
 
-                            <a href="{{ route('nutritionist.putri') }}"
-                               class="bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold">
-                                Lihat Detail
-                            </a>
+                @endif
 
-                        </td>
+            </td>
 
-                    </tr>
+            <td>
 
-                    <!-- NANDA -->
-                    <tr>
+                <p class="text-xs text-slate-500 mb-1">
+                    {{ $client->adherence }}% target
+                </p>
 
-                        <td class="py-5">
+                <div class="w-32 h-2 bg-slate-100 rounded-full">
 
-                            <div class="flex items-center gap-3">
+                    <div
+                        class="h-2 rounded-full
 
-                                <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-700 font-black">
-                                    NN
-                                </div>
+                        @if ($client->risk_level === 'high')
+                            bg-red-500
+                        @elseif ($client->risk_level === 'moderate')
+                            bg-yellow-500
+                        @else
+                            bg-emerald-700
+                        @endif"
 
-                                <div>
+                        style="width: {{ $client->adherence }}%">
+                    </div>
 
-                                    <p class="font-bold">
-                                        Nanda Nabila
-                                    </p>
+                </div>
 
-                                    <p class="text-xs text-slate-400">
-                                        Diperbarui 1 hari lalu
-                                    </p>
+            </td>
 
-                                </div>
+            <td>
 
-                            </div>
+                <a href="{{ route('nutritionist.clients.show', $client->slug) }}"
+                   class="bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold">
 
-                        </td>
+                    Lihat Detail
 
-                        <td>
-                            Nutrisi Olahraga
-                        </td>
+                </a>
 
-                        <td>
+            </td>
 
-                            <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold">
-                                Sedang
-                            </span>
+        </tr>
 
-                        </td>
+    @endforeach
 
-                        <td>
-
-                            <p class="text-xs text-slate-500 mb-1">
-                                76% target
-                            </p>
-
-                            <div class="w-32 h-2 bg-slate-100 rounded-full">
-
-                                <div class="w-[76%] h-2 bg-emerald-500 rounded-full"></div>
-
-                            </div>
-
-                        </td>
-
-                        <td>
-
-                            <a href="{{ route('nutritionist.nanda') }}"
-                               class="bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold">
-                                Lihat Detail
-                            </a>
-
-                        </td>
-
-                    </tr>
-
-                    <!-- DETA -->
-                    <tr>
-
-                        <td class="py-5">
-
-                            <div class="flex items-center gap-3">
-
-                                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-black">
-                                    DA
-                                </div>
-
-                                <div>
-
-                                    <p class="font-bold">
-                                        Deta Amelia
-                                    </p>
-
-                                    <p class="text-xs text-slate-400">
-                                        Diperbarui 3 hari lalu
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                        </td>
-
-                        <td>
-                            Pemulihan Pola Makan
-                        </td>
-
-                        <td>
-
-                            <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold">
-                                Tinggi
-                            </span>
-
-                        </td>
-
-                        <td>
-
-                            <p class="text-xs text-slate-500 mb-1">
-                                45% target
-                            </p>
-
-                            <div class="w-32 h-2 bg-slate-100 rounded-full">
-
-                                <div class="w-[45%] h-2 bg-red-500 rounded-full"></div>
-
-                            </div>
-
-                        </td>
-
-                        <td>
-
-                            <a href="{{ route('nutritionist.deta') }}"
-                               class="bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold">
-                                Lihat Detail
-                            </a>
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
+</tbody>
 
             </table>
 

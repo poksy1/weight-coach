@@ -8,6 +8,10 @@ use App\Models\UserProfile;
 use App\Models\FoodLog;
 use Carbon\Carbon;
 
+use App\Http\Controllers\Nutritionist\DashboardController;
+use App\Http\Controllers\Nutritionist\ClientController;
+use App\Http\Controllers\Nutritionist\MealPlanController;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -143,26 +147,39 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'nutritionist'])->group(function () {
 
-    Route::get('/nutritionist/dashboard', function () {
-        return view('nutritionist.dashboard');
-    })->name('nutritionist.dashboard');
+    // Dashboard ahli gizi
+    Route::get('/nutritionist/dashboard', [DashboardController::class, 'index'])
+        ->name('nutritionist.dashboard');
 
+    // Halaman detail klien (DINAMIS)
+    Route::get('/nutritionist/clients/{client:slug}', [ClientController::class, 'show'])
+        ->name('nutritionist.clients.show');
+
+    // Meal plan per klien (DINAMIS)
+    Route::get('/nutritionist/clients/{client:slug}/meal-plans', [MealPlanController::class, 'show'])
+        ->name('nutritionist.clients.meal-plans');
+
+    // Halaman lain
+    Route::get('/nutritionist/water', function () {
+        return view('nutritionist.water');
+    })->name('nutritionist.water');
+
+    Route::get('/nutritionist/progress', function () {
+        return view('nutritionist.progress');
+    })->name('nutritionist.progress');
+
+    Route::get('/nutritionist/settings', function () {
+        return view('nutritionist.settings');
+    })->name('nutritionist.settings');
+
+    // Redirect sementara meal plans utama
     Route::get('/nutritionist/meal-plans', function () {
-        return view('nutritionist.meal-plans');
+        return redirect()->route(
+            'nutritionist.clients.meal-plans',
+            'putri-amanda'
+        );
     })->name('nutritionist.meal-plans');
-
-    Route::get('/nutritionist/clients/putri-amanda', function () {
-        return view('nutritionist.clients.putri-amanda');
-    })->name('nutritionist.putri');
-
-    Route::get('/nutritionist/clients/nanda-nabila', function () {
-        return view('nutritionist.clients.nanda-nabila');
-    })->name('nutritionist.nanda');
-
-    Route::get('/nutritionist/clients/deta-amelia', function () {
-        return view('nutritionist.clients.deta-amelia');
-    })->name('nutritionist.deta');
-
+    
 });
 
 require __DIR__.'/auth.php';

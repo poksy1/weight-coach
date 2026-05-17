@@ -41,17 +41,17 @@
                     🍽 Rencana Makan
                 </a>
 
-                <a href="#"
+                <a href="{{ route('nutritionist.water') }}"
                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50">
                     ♢ Pantau Air
                 </a>
 
-                <a href="#"
+                <a href="{{ route('nutritionist.progress') }}"
                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50">
                     ⌁ Progress
                 </a>
 
-                <a href="#"
+                <a href="{{ route('nutritionist.settings') }}"
                    class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50">
                     ⚙ Pengaturan
                 </a>

@@ -58,4 +58,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(FoodLog::class);
     }
+
+    // Relasi Nutritionist -> Banyak Klien
+    public function clients()
+    {
+        return $this->hasMany(\App\Models\Client::class, 'nutritionist_id');
+    }
 }

@@ -157,8 +157,20 @@ Route::middleware(['auth', 'nutritionist'])->group(function () {
 
     // Meal plan per klien (DINAMIS)
     Route::get('/nutritionist/clients/{client:slug}/meal-plans', [MealPlanController::class, 'show'])
-        ->name('nutritionist.clients.meal-plans');
+    ->name('nutritionist.clients.meal-plans');
 
+    // SIMPAN meal plan
+    Route::post('/nutritionist/clients/{client:slug}/meal-plans', [MealPlanController::class, 'store'])
+    ->name('nutritionist.clients.meal-plans.store');
+
+    Route::delete('/nutritionist/clients/{client:slug}/meal-plans/{mealPlan}', [MealPlanController::class, 'destroy'])
+    ->name('nutritionist.clients.meal-plans.destroy');
+
+    Route::put('/nutritionist/clients/{client:slug}/meal-plans/{mealPlan}', [MealPlanController::class, 'update'])
+    ->name('nutritionist.clients.meal-plans.update');
+
+    Route::post('/nutritionist/clients/{client:slug}/meal-plans/share', [MealPlanController::class, 'share'])
+    ->name('nutritionist.clients.meal-plans.share');
     // Halaman lain
     Route::get('/nutritionist/water', function () {
         return view('nutritionist.water');

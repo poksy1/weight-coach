@@ -19,10 +19,19 @@ class Client extends Model
         'fat_target',
         'water_target',
         'water_today',
+
+        'meal_plan_status',
+        'meal_plan_shared_at',
     ];
 
     public function nutritionist()
     {
         return $this->belongsTo(User::class, 'nutritionist_id');
     }
+
+    public function mealPlans()
+    {
+    return $this->hasMany(MealPlan::class);
+    }
+
 }

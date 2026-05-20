@@ -171,6 +171,16 @@ Route::middleware(['auth', 'nutritionist'])->group(function () {
 
     Route::post('/nutritionist/clients/{client:slug}/meal-plans/share', [MealPlanController::class, 'share'])
     ->name('nutritionist.clients.meal-plans.share');
+
+    Route::post(
+    '/nutritionist/clients/{client:slug}/meal-plans/duplicate',
+    [MealPlanController::class, 'duplicate']
+    )->name('nutritionist.clients.meal-plans.duplicate');
+
+    Route::get(
+    '/nutritionist/clients/{client:slug}/meal-plans/export-pdf',
+    [MealPlanController::class, 'exportPdf']
+    )->name('nutritionist.clients.meal-plans.export-pdf');
     // Halaman lain
     Route::get('/nutritionist/water', function () {
         return view('nutritionist.water');

@@ -13,6 +13,82 @@
 
 <body class="bg-[#f4f7f6] text-slate-900">
 
+@php
+
+$days = [
+    'Senin',
+    'Selasa',
+    'Rabu',
+    'Kamis',
+    'Jumat',
+    'Sabtu',
+    'Minggu',
+];
+
+$mealTypes = [
+    'Sarapan',
+    'Makan Siang',
+    'Makan Malam',
+    'Camilan',
+];
+
+$recipes = [
+    ['name' => 'Quinoa Bowl', 'cal' => 420, 'protein' => 28, 'carb' => 40, 'fat' => 12, 'color' => 'bg-emerald-100'],
+    ['name' => 'Salmon Panggang', 'cal' => 380, 'protein' => 35, 'carb' => 10, 'fat' => 15, 'color' => 'bg-orange-100'],
+    ['name' => 'Oat Pisang', 'cal' => 310, 'protein' => 12, 'carb' => 52, 'fat' => 7, 'color' => 'bg-blue-100'],
+    ['name' => 'Greek Yogurt', 'cal' => 220, 'protein' => 18, 'carb' => 14, 'fat' => 8, 'color' => 'bg-pink-100'],
+    ['name' => 'Chicken Salad', 'cal' => 340, 'protein' => 30, 'carb' => 18, 'fat' => 10, 'color' => 'bg-lime-100'],
+    ['name' => 'Nasi Ayam', 'cal' => 510, 'protein' => 40, 'carb' => 65, 'fat' => 18, 'color' => 'bg-yellow-100'],
+    ['name' => 'Smoothie Berry', 'cal' => 260, 'protein' => 15, 'carb' => 38, 'fat' => 5, 'color' => 'bg-purple-100'],
+    ['name' => 'Avocado Toast', 'cal' => 290, 'protein' => 10, 'carb' => 35, 'fat' => 14, 'color' => 'bg-teal-100'],
+    ['name' => 'Wrap Tuna', 'cal' => 330, 'protein' => 26, 'carb' => 28, 'fat' => 11, 'color' => 'bg-cyan-100'],
+    ['name' => 'Smoothie Pisang', 'cal' => 210, 'protein' => 9, 'carb' => 32, 'fat' => 4, 'color' => 'bg-amber-100'],
+];
+
+$totalCalories = $mealPlans->sum('calories');
+
+$totalProtein = 0;
+$totalCarbs = 0;
+$totalFat = 0;
+
+foreach ($mealPlans as $meal)
+{
+    foreach ($recipes as $recipe)
+    {
+        if ($recipe['name'] === $meal->meal_name)
+        {
+            $totalProtein += $recipe['protein'];
+            $totalCarbs += $recipe['carb'];
+            $totalFat += $recipe['fat'];
+        }
+    }
+}
+
+$proteinPercent = $client->protein_target > 0
+    ? min(($totalProtein / $client->protein_target) * 100, 100)
+    : 0;
+
+$carbPercent = $client->carb_target > 0
+    ? min(($totalCarbs / $client->carb_target) * 100, 100)
+    : 0;
+
+$fatPercent = $client->fat_target > 0
+    ? min(($totalFat / $client->fat_target) * 100, 100)
+    : 0;
+
+$caloriePercent = $client->calorie_target > 0
+    ? min(($totalCalories / $client->calorie_target) * 100, 100)
+    : 0;
+
+$proteinReached = $totalProtein >= $client->protein_target;
+$fatReached = $totalFat >= $client->fat_target;
+$calorieReached = $totalCalories >= $client->calorie_target;
+
+$proteinRemaining = max($client->protein_target - $totalProtein, 0);
+$fatRemaining = max($client->fat_target - $totalFat, 0);
+
+@endphp
+
 <div class="min-h-screen flex">
 
     <!-- SIDEBAR -->
@@ -102,18 +178,18 @@
         <div class="px-8 py-8">
 
             @if(session('success'))
-
                 <div class="mb-6 bg-emerald-100 text-emerald-800 px-5 py-4 rounded-2xl font-bold">
                     {{ session('success') }}
                 </div>
-
             @endif
+
             @if(session('error'))
-    <div class="mb-6 bg-red-100 text-red-700 px-5 py-4 rounded-2xl font-bold">
-        {{ session('error') }}
-    </div>
-@endif
-            <!-- TOP BAR -->
+                <div class="mb-6 bg-red-100 text-red-700 px-5 py-4 rounded-2xl font-bold">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <!-- TOP -->
             <div class="mb-7 bg-blue-50 border-y border-blue-100 px-5 py-3 flex items-center gap-8 text-sm">
 
                 <span class="font-black text-emerald-800">
@@ -127,7 +203,7 @@
             </div>
 
             <!-- MAIN GRID -->
-            <div class="grid grid-cols-12 gap-6 items-start">
+            <div class="grid grid-cols-12 gap-6 items-stretch">
 
                 <!-- LEFT -->
                 <section class="col-span-3 space-y-6">
@@ -203,79 +279,56 @@
 
                     </div>
 
-                    <!-- RECIPE -->
-                    <div class="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm h-[770px] flex flex-col">
+                    <!-- RESEP -->
+                    <div class="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm h-[900px] flex flex-col">
 
                         <h2 class="text-xl font-black text-emerald-900">
                             Daftar Resep
                         </h2>
 
                         <input
+                            id="recipeSearch"
                             type="text"
                             placeholder="Cari makanan sehat..."
                             class="mt-6 w-full rounded-full border-0 bg-slate-100 px-5 py-3 text-sm">
 
-                        <div class="flex gap-2 mt-5 text-xs">
-
-                            <span class="bg-emerald-700 text-white px-4 py-2 rounded-full font-bold">
-                                Protein Tinggi
-                            </span>
-
-                            <span class="bg-slate-100 text-slate-600 px-4 py-2 rounded-full font-bold">
-                                Vegan
-                            </span>
-
-                        </div>
-
-                        <!-- SCROLL -->
                         <div class="mt-7 space-y-5 overflow-y-auto pr-2 flex-1">
 
-                            @foreach ([
-                                ['name' => 'Quinoa Bowl', 'cal' => '420', 'protein' => '28', 'color' => 'bg-emerald-100'],
-                                ['name' => 'Salmon Panggang', 'cal' => '380', 'protein' => '35', 'color' => 'bg-orange-100'],
-                                ['name' => 'Oat Pisang', 'cal' => '310', 'protein' => '12', 'color' => 'bg-blue-100'],
-                                ['name' => 'Greek Yogurt', 'cal' => '220', 'protein' => '18', 'color' => 'bg-pink-100'],
-                                ['name' => 'Chicken Salad', 'cal' => '340', 'protein' => '30', 'color' => 'bg-lime-100'],
-                                ['name' => 'Nasi Ayam', 'cal' => '510', 'protein' => '40', 'color' => 'bg-yellow-100'],
-                                ['name' => 'Smoothie Berry', 'cal' => '260', 'protein' => '15', 'color' => 'bg-purple-100'],
-                                ['name' => 'Avocado Toast', 'cal' => '290', 'protein' => '10', 'color' => 'bg-teal-100'],
-                                ['name' => 'Wrap Tuna', 'cal' => '330', 'protein' => '26', 'color' => 'bg-cyan-100'],
-                                ['name' => 'Smoothie Pisang', 'cal' => '210', 'protein' => '9', 'color' => 'bg-amber-100'],
-                            ] as $recipe)
+                            @foreach ($recipes as $recipe)
 
                                 <button
                                     type="button"
                                     data-recipe-card
+                                    data-name="{{ strtolower($recipe['name']) }}"
                                     onclick="fillMealForm(
                                         '{{ $recipe['name'] }}',
                                         '{{ $recipe['cal'] }}'
                                     )"
-    class="w-full flex items-center gap-4 border-2 border-transparent hover:bg-slate-50 rounded-2xl p-2 transition">
+                                    class="recipe-card w-full flex items-center gap-4 border-2 border-transparent hover:bg-slate-50 rounded-2xl p-3 transition overflow-hidden">
 
-    <div class="w-16 h-16 rounded-2xl {{ $recipe['color'] }}"></div>
+                                    <div class="w-16 h-16 rounded-2xl shrink-0 {{ $recipe['color'] }}"></div>
 
-    <div class="flex-1 text-left">
+                                    <div class="flex-1 text-left min-w-0">
 
-        <h3 class="font-black leading-tight">
-            {{ $recipe['name'] }}
-        </h3>
+                                        <h3 class="font-black leading-tight text-slate-900">
+                                            {{ $recipe['name'] }}
+                                        </h3>
 
-        <p class="text-sm text-slate-500">
-            {{ $recipe['cal'] }} kkal
-        </p>
+                                        <p class="text-sm text-slate-500">
+                                            {{ $recipe['cal'] }} kkal
+                                        </p>
 
-        <p class="text-sm text-slate-500">
-            {{ $recipe['protein'] }}g Protein
-        </p>
+                                        <p class="text-sm text-slate-500">
+                                            {{ $recipe['protein'] }}g Protein
+                                        </p>
 
-    </div>
+                                    </div>
 
-    <span class="text-slate-400 hover:text-emerald-700">
-        ☰
-    </span>
+                                    <span class="text-slate-400 shrink-0">
+                                        ☰
+                                    </span>
 
-</button>
-
+                                </button>
 
                             @endforeach
 
@@ -286,7 +339,7 @@
                 </section>
 
                 <!-- CENTER -->
-                <section class="col-span-6 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+               <section class="col-span-6 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
 
                     <!-- TOP -->
                     <div class="px-7 py-6 border-b border-slate-200 flex items-center justify-between">
@@ -305,8 +358,17 @@
 
                         <div class="flex gap-5 text-2xl">
 
-                            <button>‹</button>
-                            <button>›</button>
+                            <button
+                                onclick="scrollPlanner('left')"
+                                class="hover:text-emerald-700 transition">
+                                ‹
+                            </button>
+
+                            <button
+                                onclick="scrollPlanner('right')"
+                                class="hover:text-emerald-700 transition">
+                                ›
+                            </button>
 
                         </div>
 
@@ -323,35 +385,36 @@
                             @csrf
 
                             <select
+                                id="daySelect"
                                 name="day"
                                 class="rounded-xl border-slate-200 text-sm">
 
-                                <option>Senin</option>
-                                <option>Selasa</option>
-                                <option>Rabu</option>
+                                @foreach($days as $day)
+                                    <option>{{ $day }}</option>
+                                @endforeach
 
                             </select>
 
                             <select
+                                id="mealTypeSelect"
                                 name="meal_type"
                                 class="rounded-xl border-slate-200 text-sm">
 
-                                <option>Sarapan</option>
-                                <option>Makan Siang</option>
-                                <option>Makan Malam</option>
-                                <option>Camilan</option>
+                                @foreach($mealTypes as $type)
+                                    <option>{{ $type }}</option>
+                                @endforeach
 
                             </select>
 
                             <input
-                            id="mealNameInput"
-                            type="text"
-                            name="meal_name"
-                            placeholder="Nama makanan"
-                            class="rounded-xl border-slate-200 text-sm">
+                                id="mealNameInput"
+                                type="text"
+                                name="meal_name"
+                                placeholder="Nama makanan"
+                                class="rounded-xl border-slate-200 text-sm">
 
                             <input
-                            id="calorieInput"
+                                id="calorieInput"
                                 type="number"
                                 name="calories"
                                 placeholder="kkal"
@@ -359,7 +422,7 @@
 
                             <button
                                 type="submit"
-                                class="rounded-xl bg-emerald-800 text-white font-black text-sm">
+                                class="rounded-xl bg-emerald-800 text-white font-black text-sm hover:bg-emerald-900 transition">
 
                                 Tambah
 
@@ -369,293 +432,412 @@
 
                     </div>
 
-                    @php
-
-                        $days = [
-                            'Senin',
-                            'Selasa',
-                            'Rabu',
-                        ];
-
-                        $mealTypes = [
-                            'Sarapan',
-                            'Makan Siang',
-                            'Makan Malam',
-                            'Camilan',
-                        ];
-
-                    @endphp
-
                     <!-- PLANNER -->
-                    <div class="p-7">
+                    <div
+                        id="plannerScroll"
+                         class="overflow-x-auto flex-1">
 
-                        <!-- DAYS -->
-                        <div class="grid grid-cols-3 gap-5 mb-6 text-center">
+                        <div class="p-7 min-w-[1350px]">
 
-                            @foreach ($days as $day)
-
-                                <div>
-
-                                    <h3 class="text-2xl font-black text-emerald-900">
-                                        {{ strtoupper(substr($day, 0, 3)) }}
-                                    </h3>
-
-                                    <p class="text-sm text-slate-400 mt-1">
-                                        {{ $loop->iteration + 13 }} Okt
-                                    </p>
-
-                                    <div class="h-[2px] mt-4 {{ $loop->first ? 'bg-emerald-700' : 'bg-transparent' }}"></div>
-
-                                </div>
-
-                            @endforeach
-
-                        </div>
-
-                        <!-- GRID -->
-                        <div class="grid grid-cols-3 gap-5">
-
-                            @foreach ($mealTypes as $mealType)
+                            <!-- DAYS -->
+                            <div class="grid grid-cols-7 gap-4 mb-6 text-center">
 
                                 @foreach ($days as $day)
 
-                                    @php
-                                        $meal = $mealPlans
-                                            ->where('day', $day)
-                                            ->where('meal_type', $mealType)
-                                            ->first();
-                                    @endphp
+                                    <div>
 
-                                    @if ($meal)
+                                        <h3 class="text-2xl font-black text-emerald-900">
+                                            {{ strtoupper(substr($day, 0, 6)) }}
+                                        </h3>
 
-                                        <div class="min-h-[170px] rounded-3xl border border-slate-200 bg-slate-50 p-5 flex flex-col justify-between">
+                                        <p class="text-sm text-slate-400 mt-1">
+                                            {{ $loop->iteration + 13 }} Mei
+                                        </p>
 
-                                            <div>
+                                        <div class="h-[2px] mt-4 {{ $loop->first ? 'bg-emerald-700' : 'bg-transparent' }}"></div>
 
-                                                <p class="text-xs uppercase tracking-wide text-slate-400 font-bold">
-                                                    {{ $mealType }}
-                                                </p>
+                                    </div>
 
-                                                <h4 class="font-black text-2xl text-slate-900 mt-3 leading-tight">
-                                                    {{ $meal->meal_name }}
-                                                </h4>
+                                @endforeach
 
-                                            </div>
+                            </div>
 
-                                            <div class="flex items-center justify-between mt-6">
+                            <!-- GRID -->
+                            <div class="grid grid-cols-7 gap-4">
 
-                                                <p class="text-xl text-slate-500">
-                                                    {{ $meal->calories }} kkal
-                                                </p>
+                                @foreach ($mealTypes as $mealType)
 
-                                                <div class="flex items-center gap-4">
+                                    @foreach ($days as $day)
 
-                                                    <button
-                                                        onclick="openEditModal('{{ $meal->id }}', '{{ $meal->meal_name }}', '{{ $meal->calories }}')"
-                                                        class="text-blue-600 text-sm font-bold hover:underline">
+                                        @php
+                                            $meal = $mealPlans
+                                                ->where('day', $day)
+                                                ->where('meal_type', $mealType)
+                                                ->first();
+                                        @endphp
 
-                                                        Edit
+                                        @if ($meal)
 
-                                                    </button>
+                                            <div class="min-h-[170px] rounded-3xl border border-slate-200 bg-slate-50 p-5 flex flex-col justify-between">
 
-                                                    <form
-                                                        method="POST"
-                                                        action="{{ route('nutritionist.clients.meal-plans.destroy', [$client->slug, $meal->id]) }}">
+                                                <div>
 
-                                                        @csrf
-                                                        @method('DELETE')
+                                                    <p class="text-xs uppercase tracking-wide text-slate-400 font-bold">
+                                                        {{ $mealType }}
+                                                    </p>
+
+                                                    <h4 class="font-black text-2xl text-slate-900 mt-3 leading-tight">
+                                                        {{ $meal->meal_name }}
+                                                    </h4>
+
+                                                </div>
+
+                                                <div class="flex items-center justify-between mt-6">
+
+                                                    <p class="text-lg text-slate-500">
+                                                        {{ $meal->calories }} kkal
+                                                    </p>
+
+                                                    <div class="flex items-center gap-4">
 
                                                         <button
-                                                            type="submit"
-                                                            class="text-red-500 text-sm font-bold hover:underline">
+                                                            type="button"
+                                                            onclick="openEditModal('{{ $meal->id }}', '{{ $meal->meal_name }}', '{{ $meal->calories }}')"
+                                                            class="text-blue-600 text-sm font-bold hover:underline">
 
-                                                            Hapus
+                                                            Edit
 
                                                         </button>
 
-                                                    </form>
+                                                        <form
+                                                            method="POST"
+                                                            action="{{ route('nutritionist.clients.meal-plans.destroy', [$client->slug, $meal->id]) }}">
+
+                                                            @csrf
+                                                            @method('DELETE')
+
+                                                            <button
+                                                                type="submit"
+                                                                class="text-red-500 text-sm font-bold hover:underline">
+
+                                                                Hapus
+
+                                                            </button>
+
+                                                        </form>
+
+                                                    </div>
 
                                                 </div>
 
                                             </div>
 
-                                        </div>
+                                        @else
 
-                                    @else
+                                            <button
+                                                type="button"
+                                                onclick="quickAddMeal('{{ $day }}', '{{ $mealType }}')"
+                                                class="min-h-[170px] rounded-3xl border border-dashed border-slate-300 bg-white text-slate-300 text-4xl flex items-center justify-center hover:bg-slate-50">
 
-                                        <button
-                                            class="min-h-[170px] rounded-3xl border border-dashed border-slate-300 bg-white text-slate-300 text-4xl flex items-center justify-center hover:bg-slate-50">
+                                                +
 
-                                            +
+                                            </button>
 
-                                        </button>
+                                        @endif
 
-                                    @endif
+                                    @endforeach
 
                                 @endforeach
 
-                            @endforeach
+                            </div>
 
                         </div>
 
                     </div>
 
                 </section>
-    @php
-    $totalCalories = $mealPlans->sum('calories');
 
-    $caloriePercent = $client->calorie_target > 0
-        ? min(($totalCalories / $client->calorie_target) * 100, 100)
-        : 0;
-@endphp
+                <!-- RIGHT -->
+                <section class="col-span-3 space-y-6 h-full flex flex-col">
 
-<!-- RIGHT -->
-<section class="col-span-3 space-y-6 self-start">
+                    <!-- MACRO -->
+                    <div class="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
 
-    <!-- MACRO -->
-<div class="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-start">
 
-    <div class="flex justify-between items-start">
-        <h2 class="text-xl font-black text-emerald-900">
-            Makro Real-time
-        </h2>
+                            <h2 class="text-xl font-black text-emerald-900">
+                                Makro Saat Ini
+                            </h2>
 
-        <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-black">
-            LIVE
-        </span>
-    </div>
+                            <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-black">
+                                AKTIF
+                            </span>
 
-    <div class="h-[220px] mt-5">
-        <canvas id="macroChart"></canvas>
-    </div>
+                        </div>
 
-    <div class="text-center mt-5">
-        <p class="text-[44px] font-black text-emerald-800">
-            {{ $totalCalories }}
-        </p>
+                        <div class="relative h-[260px] mt-5 flex items-center justify-center">
 
-        <p class="text-xs font-bold text-slate-400 uppercase">
-            kkal total
-        </p>
-    </div>
+                            <canvas id="macroChart"></canvas>
 
-    <div class="mt-6">
-        <div class="flex justify-between font-bold">
-            <span>Total Kalori</span>
-            <span>{{ $totalCalories }} / {{ $client->calorie_target }} kkal</span>
-        </div>
+                            <div class="absolute flex flex-col items-center justify-center">
 
-        <div class="h-2 bg-slate-100 rounded-full mt-2">
-            <div
-                class="h-2 bg-emerald-700 rounded-full"
-                style="width: {{ $caloriePercent }}%">
-            </div>
-        </div>
-    </div>
+                                <p class="text-[48px] font-black text-emerald-800 leading-none">
+                                    {{ $totalCalories }}
+                                </p>
 
-    <div class="space-y-4 mt-6 pt-6 border-t border-slate-100">
+                                <p class="text-xs font-bold text-slate-400 uppercase mt-2">
+                                    kkal total
+                                </p>
 
-        <div>
-            <div class="flex justify-between font-bold">
-                <span>Protein</span>
-                <span>40g / {{ $client->protein_target }}g</span>
-            </div>
+                            </div>
 
-            <div class="h-2 bg-slate-100 rounded-full mt-2">
-                <div class="h-2 bg-emerald-700 rounded-full w-[40%]"></div>
-            </div>
-        </div>
+                        </div>
 
-        <div>
-            <div class="flex justify-between font-bold">
-                <span>Karbo</span>
-                <span>65g / {{ $client->carb_target }}g</span>
-            </div>
+                        <!-- KALORI -->
+                        <div class="mt-6">
 
-            <div class="h-2 bg-slate-100 rounded-full mt-2">
-                <div class="h-2 bg-blue-600 rounded-full w-[55%]"></div>
-            </div>
-        </div>
+                            <div class="flex justify-between font-bold">
+                                <span>Total Kalori</span>
+                                <span>{{ $totalCalories }} / {{ $client->calorie_target }} kkal</span>
+                            </div>
 
-        <div>
-            <div class="flex justify-between font-bold">
-                <span>Lemak</span>
-                <span>18g / {{ $client->fat_target }}g</span>
-            </div>
+                            <div class="h-2 bg-slate-100 rounded-full mt-2">
 
-            <div class="h-2 bg-slate-100 rounded-full mt-2">
-                <div class="h-2 bg-yellow-500 rounded-full w-[30%]"></div>
-            </div>
-        </div>
+                                <div
+                                    class="h-2 bg-emerald-700 rounded-full"
+                                    style="width: {{ $caloriePercent }}%"></div>
 
-    </div>
+                            </div>
 
-</div>
-    <!-- GOALS -->
-    <div class="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
+                        </div>
 
-        <p class="text-xs uppercase tracking-widest text-slate-400 font-black">
-            Kesesuaian Target Klien
-        </p>
+                        <!-- PROTEIN -->
+                        <div class="mt-6">
 
-        <div class="space-y-5 mt-6 text-sm">
+                            <div class="flex justify-between font-bold">
+                                <span>Protein</span>
+                                <span>{{ $totalProtein }}g / {{ $client->protein_target }}g</span>
+                            </div>
 
-            <div class="flex gap-3">
+                            <div class="h-2 bg-slate-100 rounded-full mt-2">
 
-                <span class="text-emerald-600">✅</span>
+                                <div
+                                    class="h-2 bg-emerald-700 rounded-full"
+                                    style="width: {{ $proteinPercent }}%"></div>
 
-                <p class="font-bold text-slate-700">
-                    Target protein tinggi mulai terpenuhi
-                </p>
+                            </div>
 
-            </div>
+                        </div>
 
-            <div class="flex gap-3">
+                        <!-- KARBO -->
+                        <div class="mt-6">
 
-                <span class="text-slate-500">ⓘ</span>
+                            <div class="flex justify-between font-bold">
+                                <span>Karbo</span>
+                                <span>{{ $totalCarbs }}g / {{ $client->carb_target }}g</span>
+                            </div>
 
-                <p class="text-slate-600">
-                    Tambahkan 15g lemak sehat untuk mencapai target
-                </p>
+                            <div class="h-2 bg-slate-100 rounded-full mt-2">
 
-            </div>
+                                <div
+                                    class="h-2 bg-blue-600 rounded-full"
+                                    style="width: {{ $carbPercent }}%"></div>
 
-            <div class="flex gap-3">
+                            </div>
 
-                <span class="text-slate-500">⇩</span>
+                        </div>
 
-                <p class="text-slate-600">
-                    Ekspor PDF tersedia di tahap berikutnya
-                </p>
+                        <!-- FAT -->
+                        <div class="mt-6">
 
-            </div>
+                            <div class="flex justify-between font-bold">
+                                <span>Lemak</span>
+                                <span>{{ $totalFat }}g / {{ $client->fat_target }}g</span>
+                            </div>
 
-        </div>
+                            <div class="h-2 bg-slate-100 rounded-full mt-2">
 
-        <form method="POST"
-      action="{{ route('nutritionist.clients.meal-plans.share', $client->slug) }}">
+                                <div
+                                    class="h-2 bg-yellow-500 rounded-full"
+                                    style="width: {{ $fatPercent }}%"></div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- GOALS -->
+                    <div class="bg-white rounded-[32px] border border-slate-200 p-7 shadow-sm">
+
+                        <div class="bg-white rounded-[32px] border border-slate-200 p-7 shadow-sm flex flex-col flex-1">
+                            Kesesuaian Target Klien
+                        </p>
+
+                        <div class="mt-6 space-y-5">
+
+                            <!-- Protein -->
+                            <div class="flex items-start gap-3">
+
+                                @if($proteinReached)
+
+                                    <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-xs mt-0.5">
+                                        ✓
+                                    </div>
+
+                                    <p class="font-bold text-slate-800">
+                                        Target protein tinggi mulai terpenuhi
+                                    </p>
+
+                                @else
+
+                                    <div class="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 text-xs mt-0.5">
+                                        !
+                                    </div>
+
+                                    <p class="font-bold text-slate-800">
+                                        Tambahkan {{ $proteinRemaining }}g protein lagi
+                                    </p>
+
+                                @endif
+
+                            </div>
+
+                            <!-- Fat -->
+                            <div class="flex items-start gap-3">
+
+                                @if($fatReached)
+
+                                    <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-xs mt-0.5">
+                                        ✓
+                                    </div>
+
+                                    <p class="text-slate-600">
+                                        Target lemak sehat sudah terpenuhi
+                                    </p>
+
+                                @else
+
+                                    <div class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs mt-0.5">
+                                        i
+                                    </div>
+
+                                    <p class="text-slate-600">
+                                        Tambahkan {{ $fatRemaining }}g lemak sehat untuk mencapai target
+                                    </p>
+
+                                @endif
+
+                            </div>
+
+                            <!-- Calories -->
+                            <div class="flex items-start gap-3">
+
+                                @if($calorieReached)
+
+                                    <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 text-xs mt-0.5">
+                                        ✓
+                                    </div>
+
+                                    <p class="text-slate-600">
+                                        Target kalori harian sudah tercapai
+                                    </p>
+
+                                @else
+
+                                    <div class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs mt-0.5">
+                                        i
+                                    </div>
+
+                                    <p class="text-slate-600">
+                                        Total kalori masih di bawah target harian
+                                    </p>
+
+                                @endif
+
+                            </div>
+
+                        </div>
+
+                        <!-- BUTTONS -->
+                        <div class="mt-auto pt-8 space-y-3">
+
+                            <form
+    method="POST"
+    action="{{ route('nutritionist.clients.meal-plans.duplicate', $client->slug) }}">
 
     @csrf
 
+    <form
+    method="POST"
+    action="{{ route('nutritionist.clients.meal-plans.duplicate', $client->slug) }}">
+
+    @csrf
+
+    <input
+        type="hidden"
+        name="source_day"
+        id="duplicateDayInput">
+
     <button
         type="submit"
-        onclick="return confirm('Selesaikan dan bagikan rencana makan ini ke klien?')"
-        class="w-full mt-7 py-4 rounded-2xl bg-emerald-800 text-white font-black">
+        onclick="setDuplicateDay()"
+        class="w-full rounded-2xl border border-slate-200 px-5 py-4 font-bold text-slate-700 hover:bg-slate-50 transition">
 
-        ▶ Selesaikan & Bagikan
+        📋 Duplikat Hari Terpilih
+
+    </button>
+
+</form>
+</button>
 
     </button>
 
 </form>
 
-    </div>
 
-</section>
+    <a
+    href="{{ route('nutritionist.clients.meal-plans.export-pdf', $client->slug) }}"
+    class="block w-full rounded-2xl border border-slate-200 px-5 py-4 font-bold text-slate-700 hover:bg-slate-50 transition text-center">
+
+    ↓ Ekspor PDF untuk Klien
+
+</a>
+
+                            </button>
+
+                            <form
+                                method="POST"
+                                action="{{ route('nutritionist.clients.meal-plans.share', $client->slug) }}">
+
+                                @csrf
+
+                                <button
+                                    type="submit"
+                                    onclick="return confirm('Selesaikan dan bagikan rencana makan ini ke klien?')"
+                                    class="w-full rounded-2xl bg-emerald-700 text-white py-4 font-black hover:bg-emerald-800 transition">
+
+                                    ▶ Selesaikan & Bagikan
+
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </div>
+
+    </main>
 
 </div>
 
-</main>
-<!-- EDIT MODAL -->
+<!-- MODAL -->
 <div id="editModal"
      class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
 
@@ -666,12 +848,14 @@
         </h2>
 
         <form id="editForm" method="POST">
+
             @csrf
             @method('PUT')
 
             <div class="space-y-4">
 
                 <div>
+
                     <label class="text-sm font-bold text-slate-600">
                         Nama Makanan
                     </label>
@@ -681,9 +865,11 @@
                         name="meal_name"
                         id="editMealName"
                         class="w-full mt-2 rounded-xl border border-slate-200 px-4 py-3">
+
                 </div>
 
                 <div>
+
                     <label class="text-sm font-bold text-slate-600">
                         Kalori
                     </label>
@@ -693,6 +879,7 @@
                         name="calories"
                         id="editCalories"
                         class="w-full mt-2 rounded-xl border border-slate-200 px-4 py-3">
+
                 </div>
 
             </div>
@@ -703,13 +890,17 @@
                     type="button"
                     onclick="closeEditModal()"
                     class="px-5 py-3 rounded-xl bg-slate-100 font-bold">
+
                     Batal
+
                 </button>
 
                 <button
                     type="submit"
                     class="px-5 py-3 rounded-xl bg-emerald-700 text-white font-bold">
+
                     Simpan
+
                 </button>
 
             </div>
@@ -719,13 +910,13 @@
     </div>
 
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
 
 const ctx = document.getElementById('macroChart');
 
 new Chart(ctx, {
+
     type: 'doughnut',
 
     data: {
@@ -739,9 +930,9 @@ new Chart(ctx, {
         datasets: [{
 
             data: [
-                30,
-                50,
-                20
+                {{ $totalProtein }},
+                {{ $totalCarbs }},
+                {{ $totalFat }}
             ],
 
             backgroundColor: [
@@ -771,6 +962,7 @@ new Chart(ctx, {
         cutout: '72%'
 
     }
+
 });
 
 function fillMealForm(name, calories)
@@ -784,7 +976,6 @@ function fillMealForm(name, calories)
 
         card.classList.remove(
             'bg-emerald-50',
-            'border-2',
             'border-emerald-500'
         );
 
@@ -792,7 +983,6 @@ function fillMealForm(name, calories)
 
     event.currentTarget.classList.add(
         'bg-emerald-50',
-        'border-2',
         'border-emerald-500'
     );
 }
@@ -830,6 +1020,59 @@ function closeEditModal()
 
     modal.classList.add('hidden');
     modal.classList.remove('flex');
+}
+
+function scrollPlanner(direction)
+{
+    const planner = document.getElementById('plannerScroll');
+
+    planner.scrollBy({
+        left: direction === 'right' ? 500 : -500,
+        behavior: 'smooth'
+    });
+}
+
+
+/* SEARCH RECIPE */
+function duplicateSelectedDay()
+{
+    const day = document.getElementById('daySelect').value;
+
+    alert('Fitur duplikat untuk hari ' + day + ' akan dibuat nanti.');
+}
+
+const recipeSearch = document.getElementById('recipeSearch');
+
+recipeSearch.addEventListener('keyup', function() {
+
+    const keyword = this.value.toLowerCase();
+
+    const cards = document.querySelectorAll('.recipe-card');
+
+    cards.forEach(card => {
+
+        const name = card.dataset.name;
+
+        if (name.includes(keyword))
+        {
+            card.style.display = 'flex';
+        }
+        else
+        {
+            card.style.display = 'none';
+        }
+
+    });
+
+});
+
+function setDuplicateDay()
+{
+    const selectedDay =
+        document.getElementById('daySelect').value;
+
+    document.getElementById('duplicateDayInput').value =
+        selectedDay;
 }
 </script>
 

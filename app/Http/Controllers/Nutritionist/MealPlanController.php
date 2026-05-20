@@ -203,4 +203,10 @@ class MealPlanController extends Controller
         'Menu hari ' . $sourceDay . ' berhasil diduplikasi.'
     );
 }
+    public function index()
+    {
+    $clients = Client::where('nutritionist_id', auth()->id())->get();
+
+    return view('nutritionist.meal-plans.index', compact('clients'));
+    }
 }

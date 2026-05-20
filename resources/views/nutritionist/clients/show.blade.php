@@ -91,7 +91,7 @@
                     Update: {{ $client->updated_at->diffForHumans() }}
                 </span>
 
-                <a href="{{ route('nutritionist.clients.meal-plans', $client->slug) }}"
+                <a href="{{ route('nutritionist.meal-plans') }}"
                    class="bg-emerald-800 text-white px-5 py-3 rounded-2xl font-bold shadow-sm">
                     Buat Rencana Makan
                 </a>

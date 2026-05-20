@@ -159,6 +159,8 @@ Route::middleware(['auth', 'nutritionist'])->group(function () {
     Route::get('/nutritionist/clients/{client:slug}/meal-plans', [MealPlanController::class, 'show'])
     ->name('nutritionist.clients.meal-plans');
 
+    Route::get('/nutritionist/meal-plans', [MealPlanController::class, 'index'])
+    ->name('nutritionist.meal-plans');
     // SIMPAN meal plan
     Route::post('/nutritionist/clients/{client:slug}/meal-plans', [MealPlanController::class, 'store'])
     ->name('nutritionist.clients.meal-plans.store');
@@ -195,12 +197,8 @@ Route::middleware(['auth', 'nutritionist'])->group(function () {
     })->name('nutritionist.settings');
 
     // Redirect sementara meal plans utama
-    Route::get('/nutritionist/meal-plans', function () {
-        return redirect()->route(
-            'nutritionist.clients.meal-plans',
-            'putri-amanda'
-        );
-    })->name('nutritionist.meal-plans');
+    Route::get('/nutritionist/meal-plans', [MealPlanController::class, 'index'])
+    ->name('nutritionist.meal-plans');
     
 });
 

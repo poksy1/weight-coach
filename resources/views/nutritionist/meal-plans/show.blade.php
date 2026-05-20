@@ -113,7 +113,7 @@ $fatRemaining = max($client->fat_target - $totalFat, 0);
                     ▦ Dashboard
                 </a>
 
-                <a href="{{ route('nutritionist.clients.meal-plans', $client->slug) }}"
+                <a href="{{ route('nutritionist.meal-plans') }}"
                    class="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-700 text-white font-bold">
                     🍽 Rencana Makan
                 </a>

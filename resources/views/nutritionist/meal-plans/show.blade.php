@@ -570,7 +570,7 @@ $fatRemaining = max($client->fat_target - $totalFat, 0);
                             </h2>
 
                             <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-black">
-                                AKTIF
+                                LIVE
                             </span>
 
                         </div>

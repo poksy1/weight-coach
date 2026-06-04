@@ -1,38 +1,27 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
+    <!-- Background utama yang bersih -->
+    <div class="py-8 bg-slate-50 min-h-screen">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+            
+            <!-- 1. BAGIAN FORM UTAMA (BENTO GRID KITA) -->
+            <!-- Kita lepaskan dari max-w-xl agar bisa selebar layar -->
+            @include('profile.partials.update-profile-information-form')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
-                </div>
-            </div>
-
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+            <!-- 2. BAGIAN UBAH PASSWORD -->
+            <!-- Kita bungkus dengan style Premium agar senada -->
+            <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
                 <div class="max-w-xl">
                     @include('profile.partials.update-password-form')
                 </div>
             </div>
 
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+            <!-- 3. BAGIAN HAPUS AKUN (DANGER ZONE) -->
+            <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-red-100">
                 <div class="max-w-xl">
                     @include('profile.partials.delete-user-form')
                 </div>
             </div>
-            <div class="mb-3">
-            <label for="goal" class="form-label fw-bold">Tujuan Penggunaan Aplikasi</label>
-            <select name="goal" id="goal" class="form-select" required>
-            <option value="lose">📉 Menurunkan Berat Badan (Defisit Kalori)</option>
-            <option value="maintain" selected>⚖️ Maintain Weight / Hidup Sehat (Kalori Seimbang)</option>
-            <option value="gain">📈 Menaikkan Berat Badan (Surplus Kalori)</option>
-            </select>
-            <div class="form-text">Pilih "Maintain Weight" jika Anda hanya ingin memantau gizi tanpa mengubah berat badan.</div>
-            </div>
+
         </div>
     </div>
 </x-app-layout>

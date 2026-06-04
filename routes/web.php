@@ -17,12 +17,25 @@ Route::get('/', function () {
 });
 
 // ==========================================
+// RUTE PENCARIAN FATSECRET (Diletakkan di luar)
+// ==========================================
+Route::get('/food/fatsecret-results', [App\Http\Controllers\FoodController::class, 'searchFatSecret'])
+    ->middleware(['auth'])
+    ->name('fatsecret.search');
+
+
+// ==========================================
 // 1. RUTE DASHBOARD (Fokus Hari Ini Saja)
 // ==========================================
 Route::get('/dashboard', function () {
     $user = auth()->user();
     
-    // Ambil target kalori dinamis milik user (default 2000 jika kosong)
+    // --- TAMBAHAN LOGIKA ROLE ---
+    if ($user->role === 'nutritionist') {
+        return redirect()->route('nutritionist.dashboard');
+    }
+    // ----------------------------
+    
     $targetCalorie = $user->daily_calorie_target ?? 2000;
     
     // Ambil data makanan khusus hari ini
@@ -37,14 +50,20 @@ Route::get('/dashboard', function () {
     $percentage = ($targetCalorie > 0) ? ($caloriesConsumedToday / $targetCalorie) * 100 : 0;
     $progressPercentage = min(100, $percentage); 
 
-    // Kirim SEMUA variabel yang dibutuhkan ke file blade
+    // Ambil Rencana Makan Khusus Hari Ini untuk Fitur "Catat Cepat"
+    $todayPlans = \App\Models\MealPlan::where('user_id', $user->id)
+                    ->whereDate('plan_date', \Carbon\Carbon::today())
+                    ->get();
+    
+    // Kirim SEMUA variabel ke file blade dashboard
     return view('dashboard', compact(
         'targetCalorie', 
         'dailyFoods', 
         'caloriesConsumedToday',
         'remainingCalorie',
         'totalSugar',
-        'progressPercentage'
+        'progressPercentage',
+        'todayPlans'
     ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -108,10 +127,70 @@ Route::get('/analytics', function () {
 
     return view('analytics', compact('bmi', 'bmiCategory', 'bmiColor', 'chartLabels', 'chartData', 'targetCalorie'));
 })->middleware(['auth', 'verified'])->name('analytics');
+// ==========================================
+// 4. RUTE MEAL PLANS (Perencana Makan)
+// ==========================================
 
+Route::post('/meal-plans/store', function (\Illuminate\Http\Request $request) {
+    $request->validate([
+        'food_name' => 'required|string',
+        'image'     => 'nullable|string',
+        'calories'  => 'required|numeric',
+        'meal_type' => 'required|string',
+        'plan_date' => 'required|date',
+    ]);
+
+    // PERBAIKAN: Gunakan updateOrCreate agar data tidak menumpuk.
+    // Jika hari ini sudah ada "Sarapan", maka akan ditimpa (di-update), bukan ditambah ganda.
+    \App\Models\MealPlan::updateOrCreate(
+        [
+            'user_id'   => auth()->id(),
+            'plan_date' => $request->plan_date,
+            'meal_type' => $request->meal_type, // Kunci pencarian: User + Tanggal + Waktu Makan
+        ],
+        [
+            'food_name' => $request->food_name, // Data yang akan di-update/ditulis
+            'image'     => $request->image,
+            'calories'  => $request->calories,
+            'protein'   => $request->protein ?? 0,
+        ]
+    );
+
+    return redirect()->route('meal-plans', ['date' => $request->plan_date])
+                     ->with('success', 'Rencana makan berhasil dijadwalkan!');
+})->middleware(['auth', 'verified'])->name('user.meal-plans.store');
+
+// RUTE BARU: Untuk menghapus permanen rencana makan dari database
+Route::delete('/meal-plans/{id}', function ($id) {
+    $mealPlan = \App\Models\MealPlan::where('id', $id)->where('user_id', auth()->id())->first();
+    if ($mealPlan) {
+        $mealPlan->delete();
+    }
+    return redirect()->back()->with('success', 'Menu berhasil dihapus dari rencana!');
+})->middleware(['auth', 'verified'])->name('user.meal-plans.destroy');
 
 Route::get('/meal-plans', function () {
-    return view('meal-plans');
+    $user = auth()->user();
+    $selectedDate = request('date') ? \Carbon\Carbon::parse(request('date')) : \Carbon\Carbon::today();
+    
+    $startOfWeek = $selectedDate->copy()->startOfWeek(); 
+    // PERBAIKAN: Hitung juga akhir minggunya (Hari Minggu)
+    $endOfWeek = $startOfWeek->copy()->addDays(6);
+    
+    $weekDates = [];
+    for ($i = 0; $i < 7; $i++) {
+        $weekDates[] = $startOfWeek->copy()->addDays($i);
+    }
+
+    $prevWeek = $startOfWeek->copy()->subWeek()->format('Y-m-d');
+    $nextWeek = $startOfWeek->copy()->addWeek()->format('Y-m-d');
+
+    // PERBAIKAN: Tarik data SELAMA SATU MINGGU PENUH (Senin - Minggu)
+    $plannedFoods = \App\Models\MealPlan::where('user_id', $user->id)
+                        ->whereBetween('plan_date', [$startOfWeek->format('Y-m-d'), $endOfWeek->format('Y-m-d')])
+                        ->get();
+
+    return view('meal-plans', compact('weekDates', 'prevWeek', 'nextWeek', 'selectedDate', 'startOfWeek', 'plannedFoods'));
 })->middleware(['auth', 'verified'])->name('meal-plans');
 
 // ==========================================

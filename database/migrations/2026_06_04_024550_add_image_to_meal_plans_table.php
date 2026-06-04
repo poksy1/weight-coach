@@ -1,0 +1,26 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('meal_plans', function (Blueprint $table) {
+            // Menambahkan kolom image setelah kolom food_name
+            $table->string('image')->nullable()->after('food_name');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('meal_plans', function (Blueprint $table) {
+            $table->dropColumn('image');
+        });
+    }
+};

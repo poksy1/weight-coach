@@ -46,12 +46,17 @@
             <a href="{{ route('nutritionist.settings') }}" class="flex items-center gap-2 text-slate-500 hover:text-emerald-700 transition px-2 py-1">
                 ♙ Profil
             </a>
-            <button onclick="openBantuanModal()" class="flex items-center gap-2 text-slate-500 hover:text-emerald-700 transition px-2 py-1 w-full text-left">
+            <button onclick="openBantuanModal()" class="flex items-center gap-2 text-slate-500 hover:text-emerald-700 transition px-2 py-1 w-full text-left mb-4">
                 ⓘ Bantuan
             </button>
-            <button onclick="openGantiRoleModal()" class="w-full py-2 border border-emerald-800 rounded-full text-emerald-800 font-bold hover:bg-emerald-50 transition">
-                Ganti Role
-            </button>
+            
+            <!-- FORM LOGOUT MURNI (MENGGANTIKAN GANTI ROLE) -->
+            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                @csrf
+                <button type="submit" class="w-full py-2.5 border-2 border-red-500 rounded-full text-red-500 font-bold hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center gap-2">
+                    Keluar Aplikasi
+                </button>
+            </form>
         </div>
     </aside>
 
@@ -92,7 +97,7 @@
                  onclick="openKlienAktifModal()">
                 <p class="text-xs text-slate-400 font-bold uppercase">Klien Aktif</p>
                 <div class="flex justify-between mt-3">
-                    <h3 class="text-5xl font-black text-emerald-900">{{ $activeClients }}</h3>
+                    <h3 class="text-5xl font-black text-emerald-900">{{ $activeClients ?? 0 }}</h3>
                     <div class="text-5xl text-emerald-100">👥</div>
                 </div>
                 <p class="text-xs text-emerald-600 mt-3">↗ +3 minggu ini</p>
@@ -103,7 +108,7 @@
                  onclick="openPesanModal()">
                 <p class="text-xs text-slate-400 font-bold uppercase">Pesan Menunggu</p>
                 <div class="flex justify-between mt-3">
-                    <h3 class="text-5xl font-black text-emerald-900">{{ $pendingMessages }}</h3>
+                    <h3 class="text-5xl font-black text-emerald-900">{{ $pendingMessages ?? 12 }}</h3>
                     <div class="text-5xl text-emerald-100">✉</div>
                 </div>
                 <p class="text-xs text-slate-400 mt-3">2 perlu balasan segera</p>
@@ -112,7 +117,7 @@
             <!-- KONSULTASI -->
             <div class="bg-emerald-50 rounded-3xl p-8 shadow-sm border border-emerald-100">
                 <p class="text-xs text-emerald-900 font-bold uppercase">Konsultasi Berikutnya</p>
-                <h3 class="text-xl font-black text-emerald-950 mt-3">{{ $nextConsultation }}</h3>
+                <h3 class="text-xl font-black text-emerald-950 mt-3">{{ $nextConsultation ?? 'Putri Amanda' }}</h3>
                 <p class="text-sm text-slate-500">10.30 • Konsultasi Daring</p>
                 <button onclick="masukKonsultasi()" class="mt-4 bg-emerald-800 hover:bg-emerald-900 transition text-white px-6 py-2 rounded-full text-sm font-bold shadow">
                     Masuk
@@ -150,54 +155,60 @@
                 </thead>
                 <tbody id="tabelKlien" class="divide-y divide-slate-100">
 
-                    @foreach ($clients as $client)
-                    <tr class="client-row hover:bg-slate-50 transition" data-name="{{ strtolower($client->name) }}">
+                    @if(isset($clients) && count($clients) > 0)
+                        @foreach ($clients as $client)
+                        <tr class="client-row hover:bg-slate-50 transition" data-name="{{ strtolower($client->name) }}">
 
-                        <td class="py-5">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800 font-black text-sm">
-                                    {{ strtoupper(substr($client->name, 0, 1)) }}{{ strtoupper(substr(explode(' ', $client->name)[1] ?? '', 0, 1)) }}
+                            <td class="py-5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800 font-black text-sm">
+                                        {{ strtoupper(substr($client->name, 0, 1)) }}{{ strtoupper(substr(explode(' ', $client->name)[1] ?? '', 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <p class="font-bold">{{ $client->name }}</p>
+                                        <p class="text-xs text-slate-400">Diperbarui {{ $client->updated_at->diffForHumans() }}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class="font-bold">{{ $client->name }}</p>
-                                    <p class="text-xs text-slate-400">Diperbarui {{ $client->updated_at->diffForHumans() }}</p>
+                            </td>
+
+                            <td class="text-slate-600">{{ $client->program ?? 'Weight Loss' }}</td>
+
+                            <td>
+                                @if (($client->risk_level ?? 'low') === 'low')
+                                    <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Rendah</span>
+                                @elseif (($client->risk_level ?? 'low') === 'moderate')
+                                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">Sedang</span>
+                                @else
+                                    <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold">Tinggi</span>
+                                @endif
+                            </td>
+
+                            <td>
+                                <p class="text-xs text-slate-500 mb-1">{{ $client->adherence ?? 80 }}% target</p>
+                                <div class="w-32 h-2 bg-slate-100 rounded-full">
+                                    <div class="h-2 rounded-full
+                                        @if (($client->risk_level ?? 'low') === 'high') bg-red-500
+                                        @elseif (($client->risk_level ?? 'low') === 'moderate') bg-yellow-500
+                                        @else bg-emerald-700 @endif"
+                                        style="width: {{ $client->adherence ?? 80 }}%">
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
+                            </td>
 
-                        <td class="text-slate-600">{{ $client->program }}</td>
+                            <td>
+                                <a href="{{ route('nutritionist.clients.show', $client->slug ?? 1) }}"
+                                    class="bg-emerald-700 hover:bg-emerald-800 transition text-white px-4 py-2 rounded-xl text-xs font-bold inline-block">
+                                     Lihat Detail
+                                </a>
+                            </td>
 
-                        <td>
-                            @if ($client->risk_level === 'low')
-                                <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">Rendah</span>
-                            @elseif ($client->risk_level === 'moderate')
-                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold">Sedang</span>
-                            @else
-                                <span class="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold">Tinggi</span>
-                            @endif
-                        </td>
-
-                        <td>
-                            <p class="text-xs text-slate-500 mb-1">{{ $client->adherence }}% target</p>
-                            <div class="w-32 h-2 bg-slate-100 rounded-full">
-                                <div class="h-2 rounded-full
-                                    @if ($client->risk_level === 'high') bg-red-500
-                                    @elseif ($client->risk_level === 'moderate') bg-yellow-500
-                                    @else bg-emerald-700 @endif"
-                                    style="width: {{ $client->adherence }}%">
-                                </div>
-                            </div>
-                        </td>
-
-                        <td>
-                            <a href="{{ route('nutritionist.clients.show', $client->slug) }}"
-                                class="bg-emerald-700 hover:bg-emerald-800 transition text-white px-4 py-2 rounded-xl text-xs font-bold inline-block">
-                                 Lihat Detail
-                            </a>
-                        </td>
-
-                    </tr>
-                    @endforeach
+                        </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="5" class="text-center text-slate-400 font-bold py-8">Belum ada klien saat ini.</td>
+                        </tr>
+                    @endif
 
                 </tbody>
             </table>
@@ -205,7 +216,7 @@
             <p id="emptySearch" class="hidden text-center text-red-500 font-bold mt-6 py-4">Klien tidak ditemukan.</p>
 
             <div class="text-center mt-6">
-            <span class="text-slate-400 font-bold text-sm cursor-default">
+            <span class="text-slate-400 font-bold text-sm cursor-default hover:text-emerald-700 transition">
                 Lihat Semua Klien →
             </span>
             </div>
@@ -261,7 +272,7 @@
             <div class="flex gap-4 items-start">
                 <div class="bg-blue-100 text-blue-800 rounded-xl px-3 py-2 text-sm font-black whitespace-nowrap">10.30</div>
                 <div>
-                    <p class="font-bold text-slate-900">Konsultasi Daring - {{ $nextConsultation }}</p>
+                    <p class="font-bold text-slate-900">Konsultasi Daring - {{ $nextConsultation ?? 'Putri Amanda' }}</p>
                     <p class="text-xs text-slate-400 mt-1">Konsultasi rutin • 45 menit</p>
                 </div>
             </div>
@@ -287,23 +298,27 @@
             <button onclick="closeModal('klienAktifModal')" class="text-slate-400 hover:text-slate-700 text-3xl font-black leading-none">×</button>
         </div>
         <div class="space-y-3">
-            @foreach($clients as $client)
-            <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 transition">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800 font-black text-sm">
-                        {{ strtoupper(substr($client->name, 0, 1)) }}{{ strtoupper(substr(explode(' ', $client->name)[1] ?? '', 0, 1)) }}
+            @if(isset($clients) && count($clients) > 0)
+                @foreach($clients as $client)
+                <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-800 font-black text-sm">
+                            {{ strtoupper(substr($client->name, 0, 1)) }}{{ strtoupper(substr(explode(' ', $client->name)[1] ?? '', 0, 1)) }}
+                        </div>
+                        <div>
+                            <p class="font-bold text-slate-900">{{ $client->name }}</p>
+                            <p class="text-xs text-slate-400">{{ $client->program ?? 'Weight Loss' }}</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="font-bold text-slate-900">{{ $client->name }}</p>
-                        <p class="text-xs text-slate-400">{{ $client->program }}</p>
-                    </div>
+                    <a href="{{ route('nutritionist.clients.show', $client->slug ?? 1) }}"
+                       class="text-emerald-700 font-bold text-xs hover:underline">
+                        Detail →
+                    </a>
                 </div>
-                <a href="{{ route('nutritionist.clients.show', $client->slug) }}"
-                   class="text-emerald-700 font-bold text-xs hover:underline">
-                    Detail →
-                </a>
-            </div>
-            @endforeach
+                @endforeach
+            @else
+                <p class="text-center text-sm font-bold text-slate-400">Belum ada data klien.</p>
+            @endif
         </div>
         <div class="flex justify-end mt-6">
             <button onclick="closeModal('klienAktifModal')" class="px-5 py-3 rounded-xl bg-slate-100 font-bold text-slate-700 hover:bg-slate-200 transition">Tutup</button>
@@ -377,24 +392,6 @@
     </div>
 </div>
 
-<!-- =================== MODAL GANTI ROLE =================== -->
-<div id="gantiRoleModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-3xl w-full max-w-sm shadow-2xl p-8 text-center">
-        <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-5 text-3xl">👤</div>
-        <h2 class="text-2xl font-black text-slate-950 mb-2">Ganti Role</h2>
-        <p class="text-slate-500 text-sm mb-6">Pilih role yang ingin kamu gunakan.</p>
-        <div class="space-y-3">
-            <button onclick="gantiRole('Nutritionist')" class="w-full bg-emerald-700 text-white rounded-2xl py-3 font-bold hover:bg-emerald-800 transition">
-                ✓ Nutritionist (Aktif)
-            </button>
-            <button onclick="gantiRole('Admin')" class="w-full bg-slate-100 text-slate-700 rounded-2xl py-3 font-bold hover:bg-slate-200 transition">
-                Admin
-            </button>
-        </div>
-        <button onclick="closeModal('gantiRoleModal')" class="mt-4 text-slate-400 text-sm hover:text-slate-600 transition">Batal</button>
-    </div>
-</div>
-
 <script>
 
 // =================== TOAST ===================
@@ -418,7 +415,9 @@ function closeModal(id) {
     document.getElementById(id).classList.add('hidden');
     document.getElementById(id).classList.remove('flex');
 }
-['notifikasiModal','kalenderModal','klienAktifModal','pesanModal','bantuanModal','gantiRoleModal'].forEach(id => {
+
+// Event listener (GantiRole dihapus karena sudah diganti form asli)
+['notifikasiModal','kalenderModal','klienAktifModal','pesanModal','bantuanModal'].forEach(id => {
     document.getElementById(id).addEventListener('click', function(e) {
         if (e.target === this) closeModal(id);
     });
@@ -430,7 +429,6 @@ function openKalenderModal() { openModal('kalenderModal'); }
 function openKlienAktifModal() { openModal('klienAktifModal'); }
 function openPesanModal() { openModal('pesanModal'); }
 function openBantuanModal() { openModal('bantuanModal'); }
-function openGantiRoleModal() { openModal('gantiRoleModal'); }
 
 function tandaiDibaca() {
     closeModal('notifikasiModal');
@@ -446,15 +444,6 @@ function masukKonsultasi() {
 function balasSemuaPesan() {
     closeModal('pesanModal');
     showToast('Fitur balas pesan akan segera tersedia.');
-}
-
-function gantiRole(role) {
-    closeModal('gantiRoleModal');
-    if (role === 'Admin') {
-        showToast('Berpindah ke role Admin...');
-    } else {
-        showToast('Kamu sudah berada di role Nutritionist.');
-    }
 }
 
 // =================== SEARCH & FILTER ===================

@@ -2,16 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MealPlan extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'client_id',
-        'day',
-        'meal_type',
-        'meal_name',
+        'user_id',
+        'food_name',
+        'image',
         'calories',
+        'protein',
+        'meal_type',
+        'plan_date',
     ];
 
     public function client()

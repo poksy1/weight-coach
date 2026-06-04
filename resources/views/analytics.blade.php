@@ -20,6 +20,12 @@
                 <p class="text-gray-400 text-sm mt-4">
                     Berdasarkan profil: Berat {{ auth()->user()->weight ?? '-' }} kg / Tinggi {{ auth()->user()->height ?? '-' }} cm
                 </p>
+
+                @if(!auth()->user()->weight || !auth()->user()->height)
+                    <a href="{{ route('profile.edit') }}" class="mt-5 px-6 py-2.5 bg-blue-50 text-blue-600 border border-blue-100 rounded-full font-bold text-xs uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm">
+                        + Lengkapi Data Fisik
+                    </a>
+                @endif
             </div>
 
             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8 mx-4 sm:mx-0">

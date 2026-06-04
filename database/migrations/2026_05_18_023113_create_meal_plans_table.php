@@ -13,15 +13,14 @@ return new class extends Migration
 {
     Schema::create('meal_plans', function (Blueprint $table) {
         $table->id();
+        // INI KOLOM YANG HILANG TADI:
+        $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
 
-        $table->foreignId('client_id')->constrained()->onDelete('cascade');
-
-        $table->string('day');
+        $table->string('food_name');
+        $table->integer('calories');
+        $table->integer('protein')->nullable();
         $table->string('meal_type');
-
-        $table->string('meal_name');
-
-        $table->integer('calories')->default(0);
+        $table->date('plan_date');
 
         $table->timestamps();
     });

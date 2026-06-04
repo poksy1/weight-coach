@@ -1,378 +1,299 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rencana Makan</title>
+<x-app-layout>
+    @php
+        \Carbon\Carbon::setLocale('id');
+    @endphp
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-
-<body class="bg-[#f4f7f6] text-slate-900">
-
-<div class="min-h-screen flex">
-
-    <!-- SIDEBAR -->
-    <aside class="fixed left-0 top-0 bottom-0 w-[245px] bg-white border-r border-slate-200 px-5 py-6 flex flex-col justify-between">
-
-        <div>
-            <h1 class="text-2xl font-black text-emerald-800">WeightCoach</h1>
-            <p class="text-xs text-slate-500 mt-1">Kesehatan Harian</p>
-
-            <nav class="mt-10 space-y-2 text-sm">
-                <a href="{{ route('nutritionist.dashboard') }}"
-                   class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50">
-                    ▦ Dashboard
-                </a>
-
-                <a href="{{ route('nutritionist.meal-plans') }}"
-                   class="flex items-center gap-3 px-4 py-3 rounded-lg bg-emerald-700 text-white font-bold">
-                    🍽 Rencana Makan
-                </a>
-
-                <a href="{{ route('nutritionist.water') }}"
-                   class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50">
-                    ♢ Pantau Air
-                </a>
-
-                <a href="{{ route('nutritionist.progress') }}"
-                   class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50">
-                    ⌁ Progress
-                </a>
-
-                <a href="{{ route('nutritionist.settings') }}"
-                   class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 hover:bg-slate-50">
-                    ⚙ Pengaturan
-                </a>
-            </nav>
-        </div>
-
-        <button class="w-full bg-emerald-800 text-white py-3 rounded-lg font-bold text-sm">
-            + Catat Entri Baru
-        </button>
-
-    </aside>
-
-    <!-- CONTENT -->
-    <main class="ml-[245px] flex-1">
-
-        <!-- HEADER -->
-        <header class="h-[58px] bg-white border-b border-slate-200 flex items-center justify-between px-6">
-            <h2 class="text-xl font-black text-emerald-900">WeightCoach</h2>
-
-            <div class="flex items-center gap-5 text-slate-500">
-                <span>📅</span>
-                <span>🔔</span>
-                <div class="w-9 h-9 rounded-full bg-slate-100"></div>
-            </div>
-        </header>
-
-        <!-- SUB HEADER -->
-        <div class="h-[42px] bg-blue-50 border-b border-blue-100 flex items-center px-6 gap-6 text-xs font-bold text-slate-600">
-            <span class="text-emerald-800">▣ Penyusun Rencana Makan</span>
-            <span>Draf: Klien_Putri_Amanda_Q3</span>
-        </div>
-
-        <!-- MAIN GRID -->
-        <section class="p-6 grid grid-cols-12 gap-5">
-
-            <!-- KIRI -->
-            <div class="col-span-3 space-y-5">
-
-                <!-- TARGET MAKRO -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 h-[210px]">
-                    <div class="flex justify-between items-center">
-                        <h3 class="font-black text-emerald-900">Target Makro</h3>
-                        <span class="text-slate-500">☷</span>
-                    </div>
-
-                    <p class="text-sm text-slate-500 mt-6">Kalori Harian</p>
-
-                    <div class="flex items-end gap-2 mt-2">
-                        <span class="text-4xl font-black text-emerald-800">2400</span>
-                        <span class="text-sm text-slate-500 mb-1">kkal</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-2 mt-5 text-center text-xs">
-
-    <div>
-        <p class="text-slate-500 mb-1">
-            Protein
-        </p>
-
-        <p class="bg-emerald-50 text-emerald-700 py-2 rounded-lg font-bold">
-            30%
-        </p>
-    </div>
-
-    <div>
-        <p class="text-slate-500 mb-1">
-            Karbo
-        </p>
-
-        <p class="bg-blue-50 text-blue-700 py-2 rounded-lg font-bold">
-            45%
-        </p>
-    </div>
-
-    <div>
-        <p class="text-slate-500 mb-1">
-            Lemak
-        </p>
-
-        <p class="bg-yellow-50 text-yellow-700 py-2 rounded-lg font-bold">
-            25%
-        </p>
-    </div>
-
-</div>
+    <div x-data="mealPlannerApp()" x-effect="document.body.style.overflow = isModalOpen ? 'hidden' : ''" class="py-8 bg-slate-50 min-h-screen relative">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            
+            @if (session('success'))
+                <div class="bg-emerald-100 border border-emerald-400 text-emerald-700 px-4 py-3 rounded-2xl mb-6 relative shadow-sm">
+                    <span class="block sm:inline font-bold">✨ {{ session('success') }}</span>
                 </div>
+            @endif
+            @if ($errors->any())
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-2xl mb-6 relative shadow-sm">
+                    <strong class="font-bold">Gagal menyimpan:</strong>
+                    <ul class="list-disc pl-5 mt-1 text-sm font-medium">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-                <!-- DAFTAR RESEP -->
-                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 h-[455px]">
-                    <h3 class="font-black text-emerald-900 mb-4">Daftar Resep</h3>
+            <header class="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 px-4 sm:px-0">
+                <div>
+                    <h2 class="text-3xl font-extrabold text-[#003d29] tracking-tight mb-1">Rencana Makan Mingguan</h2>
+                    <p class="text-gray-500 font-medium text-sm">Pilih tanggal dan atur menu sehatmu sendiri.</p>
+                </div>
+                <a href="{{ route('food.search') }}" class="bg-[#003d29] text-white px-6 py-3 rounded-full font-bold text-[11px] tracking-widest hover:bg-[#008f5d] transition-all shadow-lg hover:-translate-y-1 flex items-center gap-2">
+                    <span class="text-lg leading-none">+</span> CARI RESEP SISTEM
+                </a>
+            </header>
 
-                    <input
-                        type="text"
-                        placeholder="Cari makanan sehat..."
-                        class="w-full rounded-full border-0 bg-slate-100 text-sm px-4 py-2"
-                    >
-
-                    <div class="flex gap-2 mt-4 text-xs">
-                        <span class="bg-emerald-700 text-white px-3 py-1 rounded-full">Protein Tinggi</span>
-                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full">Vegan</span>
-                    </div>
-
-                    <div class="space-y-5 mt-6">
-                        <div class="flex gap-3 items-center">
-                            <div class="w-14 h-14 rounded-xl bg-emerald-100 flex-shrink-0"></div>
-
-                            <div class="flex-1">
-                                <p class="font-black text-sm">Quinoa Bowl</p>
-                                <p class="text-xs text-slate-500">420 kkal</p>
-                                <p class="text-xs text-slate-500">28g Protein</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 sm:px-0">
+                
+                <div class="md:col-span-2 flex flex-col gap-8">
+                    
+                    <section>
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold text-[#003d29]">Pilih Tanggal</h3>
+                            <div class="flex items-center gap-3">
+                                <a href="{{ route('meal-plans', ['date' => $prevWeek]) }}" class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-[#e9fbf0] hover:border-[#008f5d] hover:text-[#008f5d] transition-all shadow-sm font-bold">&larr;</a>
+                                <span class="text-xs font-extrabold tracking-widest text-[#003d29] uppercase">
+                                    {{ $startOfWeek->translatedFormat('F Y') }}
+                                </span>
+                                <a href="{{ route('meal-plans', ['date' => $nextWeek]) }}" class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-500 hover:bg-[#e9fbf0] hover:border-[#008f5d] hover:text-[#008f5d] transition-all shadow-sm font-bold">&rarr;</a>
                             </div>
+                        </div>
+                        
+                        <div class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+                            @foreach($weekDates as $date)
+                                @php
+                                    $dateStr = $date->format('Y-m-d');
+                                    $isToday = $date->isToday();
+                                @endphp
+                                
+                                <div @click="activeDate = '{{ $dateStr }}'" 
+                                     :class="activeDate === '{{ $dateStr }}' ? 'bg-[#003d29] text-white shadow-xl scale-105' : 'bg-white text-[#003d29] shadow-sm border border-gray-100 hover:border-[#008f5d]'"
+                                     class="rounded-[2rem] p-4 flex flex-col items-center justify-between h-40 w-20 flex-shrink-0 cursor-pointer transition-all duration-300">
+                                    <span class="text-[10px] font-bold tracking-widest uppercase mt-2" :class="activeDate === '{{ $dateStr }}' ? 'opacity-80 text-white' : 'text-gray-400'">
+                                        {{ $date->translatedFormat('D') }}
+                                    </span>
+                                    <span class="text-3xl font-extrabold" :class="activeDate === '{{ $dateStr }}' ? 'text-white' : 'text-[#003d29]'">
+                                        {{ $date->format('d') }}
+                                    </span>
+                                    <div class="flex gap-1 mb-2">
+                                        <div class="w-1.5 h-1.5 rounded-full transition-colors" :class="activeDate === '{{ $dateStr }}' ? 'bg-[#00e676]' : 'bg-gray-200'"></div>
+                                        @if($isToday)
+                                            <div class="w-1.5 h-1.5 rounded-full transition-colors" :class="activeDate === '{{ $dateStr }}' ? 'bg-[#00e676]' : 'bg-gray-200'"></div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </section>
 
-                            <span class="text-slate-500">☷</span>
+                    <section class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -z-10 opacity-60"></div>
+
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 bg-[#e9fbf0] rounded-full flex items-center justify-center text-2xl shadow-sm">🍽️</div>
+                            <h3 class="text-2xl font-black text-[#003d29]">
+                                Menu <span x-text="dateLabels[activeDate] || activeDate"></span>
+                            </h3>
                         </div>
 
-                        <div class="flex gap-3 items-center">
-                            <div class="w-14 h-14 rounded-xl bg-orange-100 flex-shrink-0"></div>
+                        <div class="space-y-8">
+                            <template x-for="cat in mealCategories" :key="cat.id">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <span class="text-lg" x-text="cat.icon"></span>
+                                        <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest" x-text="cat.id"></h4>
+                                    </div>
+                                    
+                                    <template x-if="!plans[activeDate][cat.id]">
+                                        <button @click="openRecipeSelector(cat.id)" class="w-full relative overflow-hidden rounded-3xl border-2 border-dashed border-gray-200 bg-gray-50/50 p-6 flex flex-col items-center justify-center text-gray-400 hover:bg-[#e9fbf0] hover:border-[#008f5d] hover:text-[#008f5d] transition-all duration-300 group">
+                                            <div class="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-[#008f5d] group-hover:text-white transition-all duration-300">
+                                                <span class="text-2xl font-bold">+</span>
+                                            </div>
+                                            <span class="text-[11px] font-extrabold tracking-widest uppercase" x-text="'Tambah ' + cat.id"></span>
+                                        </button>
+                                    </template>
 
-                            <div class="flex-1">
-                                <p class="font-black text-sm">Salmon Panggang</p>
-                                <p class="text-xs text-slate-500">380 kkal</p>
-                                <p class="text-xs text-slate-500">35g Protein</p>
+                                    <template x-if="plans[activeDate][cat.id]">
+                                        <div class="relative bg-white rounded-3xl p-4 flex gap-5 items-center shadow-md border border-gray-100 group hover:shadow-xl hover:border-[#008f5d] transition-all duration-300 cursor-pointer" @click="openRecipeDetails(plans[activeDate][cat.id])">
+                                            <div class="relative w-28 h-28 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm">
+                                                <img :src="plans[activeDate][cat.id].image" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                            </div>
+                                            <div class="flex-1 pr-10">
+                                                <h5 class="text-lg font-black text-[#003d29] mb-2 leading-tight" x-text="plans[activeDate][cat.id].title"></h5>
+                                                <div class="flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-wider">
+                                                    <span class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg" x-text="plans[activeDate][cat.id].cal + ' kkal'"></span>
+                                                    <span class="bg-[#e9fbf0] text-[#008f5d] px-3 py-1.5 rounded-lg" x-text="plans[activeDate][cat.id].protein + 'g Pro'"></span>
+                                                </div>
+                                            </div>
+                                            <button @click.stop="removeRecipe(cat.id)" class="absolute right-4 w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100 shadow-sm" title="Hapus Menu">
+                                                <span class="text-xl font-bold leading-none">&times;</span>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="md:col-span-1">
+                    <div class="bg-[#e9fbf0] rounded-[2.5rem] p-8 h-full relative shadow-sm border border-[#c9e8d6]">
+                        <h3 class="text-xl font-black text-[#003d29] mb-8">Kalkulasi <span x-text="dateLabels[activeDate] || activeDate"></span></h3>
+                        
+                        <div class="mb-6">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-[10px] font-bold tracking-widest text-gray-500 uppercase leading-tight">TOTAL<br>KALORI</span>
+                                <span class="text-[15px] font-black text-[#003d29]"><span x-text="getDailyTotal('cal')"></span> <span class="text-xs font-bold text-gray-400">/ 2000</span></span>
                             </div>
-
-                            <span class="text-slate-500">☷</span>
-                        </div>
-
-                        <div class="flex gap-3 items-center">
-                            <div class="w-14 h-14 rounded-xl bg-blue-100 flex-shrink-0"></div>
-
-                            <div class="flex-1">
-                                <p class="font-black text-sm">Oat Pisang</p>
-                                <p class="text-xs text-slate-500">310 kkal</p>
-                                <p class="text-xs text-slate-500">12g Protein</p>
+                            <div class="h-2 w-full bg-[#c9e8d6] rounded-full overflow-hidden">
+                                <div class="h-full bg-[#003d29] rounded-full transition-all duration-1000" :style="'width: ' + Math.min(100, (getDailyTotal('cal') / 2000) * 100) + '%'"></div>
                             </div>
+                        </div>
+                        
+                        <div class="mb-8 pb-8 border-b border-[#c9e8d6]">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-[10px] font-bold tracking-widest text-gray-500 uppercase">PROTEIN</span>
+                                <span class="text-[15px] font-black text-[#003d29]"><span x-text="getDailyTotal('protein')"></span>g <span class="text-xs font-bold text-gray-400">/ 120g</span></span>
+                            </div>
+                            <div class="h-2 w-full bg-[#c9e8d6] rounded-full overflow-hidden">
+                                <div class="h-full bg-[#008f5d] rounded-full transition-all duration-1000" :style="'width: ' + Math.min(100, (getDailyTotal('protein') / 120) * 100) + '%'"></div>
+                            </div>
+                        </div>
 
-                            <span class="text-slate-500">☷</span>
+                        <div class="bg-white/60 p-5 rounded-2xl border border-white mt-10">
+                            <span class="text-[10px] font-bold tracking-widest text-[#008f5d] uppercase block mb-3">PENGINGAT HIDRASI</span>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center text-xl">💧</div>
+                                <div>
+                                    <p class="text-sm font-bold text-[#003d29]">Minum 3 Liter Air</p>
+                                    <p class="text-[10px] text-gray-500 font-bold mt-0.5">Jaga fokus saat ngoding!</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-            </div>
-
-            <!-- TENGAH -->
-            <div class="col-span-6 bg-white rounded-xl border border-slate-200 shadow-sm h-[680px]">
-                <div class="h-[80px] border-b border-slate-200 flex justify-between items-center px-6">
-                    <h3 class="font-black text-emerald-900">Rencana Makan 7 Hari</h3>
-
-                    <div class="flex gap-6 text-xl text-slate-700">
-                        <span>‹</span>
-                        <span>›</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-5 p-5">
-
-                    <!-- SENIN -->
-                    <div>
-                        <div class="text-center border-b-2 border-emerald-700 pb-3 mb-4">
-                            <p class="font-black text-emerald-900">SEN</p>
-                            <p class="text-xs text-slate-500">14 Okt</p>
-                        </div>
-
-                        <div class="border border-dashed border-slate-300 rounded-lg p-3 mb-3 bg-slate-50 min-h-[90px]">
-                            <p class="text-[10px] text-slate-400 uppercase">Sarapan</p>
-                            <p class="font-black text-sm mt-1">Oat Pisang</p>
-                            <p class="text-xs text-slate-500">310 kkal</p>
-                        </div>
-
-                        <div class="border border-dashed border-slate-300 rounded-lg p-3 mb-3 bg-slate-50 min-h-[90px]">
-                            <p class="text-[10px] text-slate-400 uppercase">Makan Siang</p>
-                            <p class="font-black text-sm mt-1">Quinoa Bowl</p>
-                            <p class="text-xs text-slate-500">420 kkal</p>
-                        </div>
-
-                        <div class="border border-dashed border-slate-300 rounded-lg h-[110px] flex flex-col items-center justify-center text-slate-400 text-center">
-                            <span class="text-xl">⊕</span>
-                            <span>Tambahkan makan malam</span>
-                        </div>
-                    </div>
-
-                    <!-- SELASA -->
-                    <div>
-                        <div class="text-center pb-3 mb-4">
-                            <p class="font-black text-slate-500">SEL</p>
-                            <p class="text-xs text-slate-500">15 Okt</p>
-                        </div>
-
-                        <div class="border border-dashed border-slate-300 rounded-lg h-[90px] flex items-center justify-center text-2xl text-slate-300 mb-3">+</div>
-                        <div class="border border-dashed border-slate-300 rounded-lg h-[90px] flex items-center justify-center text-2xl text-slate-300 mb-3">+</div>
-                        <div class="border border-dashed border-slate-300 rounded-lg h-[110px] flex items-center justify-center text-2xl text-slate-300">+</div>
-                    </div>
-
-                    <!-- RABU -->
-                    <div>
-                        <div class="text-center pb-3 mb-4">
-                            <p class="font-black text-slate-500">RAB</p>
-                            <p class="text-xs text-slate-500">16 Okt</p>
-                        </div>
-
-                        <div class="border border-dashed border-slate-300 rounded-lg h-[90px] flex items-center justify-center text-2xl text-slate-300 mb-3">+</div>
-                        <div class="border border-dashed border-slate-300 rounded-lg h-[90px] flex items-center justify-center text-2xl text-slate-300 mb-3">+</div>
-                        <div class="border border-dashed border-slate-300 rounded-lg h-[110px] flex items-center justify-center text-2xl text-slate-300">+</div>
-                    </div>
-
-                </div>
-            </div>
-
-         <!-- KANAN -->
-<!-- KANAN -->
-<div class="col-span-3 space-y-5">
-
-    <!-- MAKRO REAL-TIME -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="font-black text-emerald-900">
-                Makro Real-time
-            </h3>
-
-            <span class="text-[10px] bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-bold">
-                LIVE
-            </span>
-        </div>
-
-        <div class="relative w-44 h-44 mx-auto rounded-full bg conic-gradient">
-            <div class="absolute inset-0 rounded-full"
-                 style="background: conic-gradient(#047857 0deg 110deg, #2563eb 110deg 230deg, #f59e0b 230deg 295deg, #e5e7eb 295deg 360deg);">
-            </div>
-
-            <div class="absolute inset-[16px] bg-white rounded-full flex items-center justify-center">
-                <div class="text-center">
-                    <p class="text-4xl font-black text-emerald-900">
-                        730
-                    </p>
-                    <p class="text-[10px] font-bold text-slate-500 tracking-widest">
-                        KKAL TOTAL
-                    </p>
-                </div>
             </div>
         </div>
 
-        <div class="mt-7 space-y-5 text-sm">
+        <div x-show="isModalOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
+            <div x-show="isModalOpen" @click="isModalOpen = false" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
 
-            <div>
-                <div class="flex justify-between mb-2">
-                    <span class="font-semibold text-slate-700">
-                        Protein
-                    </span>
-                    <span class="font-bold">
-                        40g / 180g
-                    </span>
+            <div x-show="isModalOpen" x-transition class="relative bg-white rounded-[2rem] shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                    <div>
+                        <h2 class="text-xl font-black text-[#003d29]">Pilih <span x-text="activeCategory"></span></h2>
+                        <p class="text-xs text-gray-500 font-medium mt-1">Rekomendasi makro yang seimbang untukmu.</p>
+                    </div>
+                    <button @click="isModalOpen = false" class="w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-500 font-bold hover:bg-gray-100 transition">&times;</button>
                 </div>
 
-                <div class="h-2 bg-slate-100 rounded-full">
-                    <div class="h-2 bg-emerald-700 rounded-full w-[22%]"></div>
-                </div>
-            </div>
+                <div class="p-4 overflow-y-auto custom-scrollbar space-y-4">
+                    <template x-for="recipe in systemRecipes" :key="recipe.id">
+                        
+                        <form action="{{ route('user.meal-plans.store') }}" method="POST" class="m-0 p-0">
+                            @csrf
+                            <input type="hidden" name="food_name" :value="recipe.title">
+                            <input type="hidden" name="calories" :value="recipe.cal">
+                            <input type="hidden" name="protein" :value="recipe.protein">
+                            <input type="hidden" name="meal_type" :value="activeCategory">
+                            <input type="hidden" name="plan_date" :value="activeDate">
+                            
+                            <button type="submit" class="w-full text-left bg-white rounded-2xl p-3 flex gap-4 items-center border border-gray-100 cursor-pointer hover:border-[#008f5d] hover:shadow-lg transition-all group">
+                                <img :src="recipe.image" class="w-20 h-20 rounded-xl object-cover group-hover:scale-105 transition-transform">
+                                <div class="flex-1">
+                                    <span class="text-[9px] font-bold text-[#008f5d] tracking-wider uppercase mb-1 block" x-text="recipe.badge"></span>
+                                    <h4 class="text-sm font-black text-[#003d29] mb-1 leading-tight" x-text="recipe.title"></h4>
+                                    <div class="flex gap-2 text-[9px] font-bold mt-2">
+                                        <span class="bg-gray-100 px-2 py-1 rounded text-gray-600" x-text="recipe.cal + ' kkal'"></span>
+                                        <span class="bg-[#e9fbf0] px-2 py-1 rounded text-[#008f5d]" x-text="recipe.protein + 'g Pro'"></span>
+                                    </div>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-[#e9fbf0] text-[#008f5d] flex items-center justify-center font-bold group-hover:bg-[#008f5d] group-hover:text-white transition-colors">
+                                    +
+                                </div>
+                            </button>
+                        </form>
 
-            <div>
-                <div class="flex justify-between mb-2">
-                    <span class="font-semibold text-slate-700">
-                        Karbo
-                    </span>
-                    <span class="font-bold">
-                        65g / 270g
-                    </span>
-                </div>
-
-                <div class="h-2 bg-slate-100 rounded-full">
-                    <div class="h-2 bg-blue-600 rounded-full w-[24%]"></div>
-                </div>
-            </div>
-
-            <div>
-                <div class="flex justify-between mb-2">
-                    <span class="font-semibold text-slate-700">
-                        Lemak
-                    </span>
-                    <span class="font-bold">
-                        18g / 65g
-                    </span>
-                </div>
-
-                <div class="h-2 bg-slate-100 rounded-full">
-                    <div class="h-2 bg-yellow-500 rounded-full w-[28%]"></div>
+                    </template>
                 </div>
             </div>
-
         </div>
 
     </div>
 
-    <!-- KESESUAIAN TARGET -->
-    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('mealPlannerApp', () => ({
+                activeDate: '{{ $selectedDate->format('Y-m-d') }}',
+                isModalOpen: false,
+                activeCategory: '',
+                
+                dateLabels: {
+                    @foreach($weekDates as $date)
+                        '{{ $date->format('Y-m-d') }}': '{{ $date->isToday() ? "Hari Ini" : $date->translatedFormat('l, d M') }}',
+                    @endforeach
+                },
 
-        <p class="text-xs tracking-widest text-slate-500 uppercase">
-            Kesesuaian Target Klien
-        </p>
+                mealCategories: [
+                    { id: 'Sarapan', icon: '🌅' },
+                    { id: 'Makan Siang', icon: '☀️' },
+                    { id: 'Makan Malam', icon: '🌙' },
+                    { id: 'Cemilan', icon: '🍎' }
+                ],
 
-        <div class="bg-emerald-50 text-emerald-800 rounded-xl p-4 text-sm font-semibold">
-            ✅ Target protein tinggi mulai terpenuhi
-        </div>
+                plans: {},
 
-        <div class="bg-yellow-50 text-yellow-700 rounded-xl p-4 text-sm font-semibold">
-            ⓘ Tambahkan 15g lemak sehat untuk mencapai target
-        </div>
+                systemRecipes: [
+                    { id: 1, title: "Oatmeal Buah Naga", badge: "🍓 SARAPAN IDEAL", cal: 380, protein: 10, carbs: 65, fat: 8, image: "https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?q=80&w=800" },
+                    { id: 2, title: "Quinoa Power Bowl", badge: "🌱 PLANT-BASED", cal: 450, protein: 18, carbs: 55, fat: 15, image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800" },
+                    { id: 3, title: "Dada Ayam Panggang", badge: "🍗 HIGH PROTEIN", cal: 410, protein: 45, carbs: 10, fat: 12, image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?q=80&w=800" },
+                    { id: 4, title: "Green Goddess Salad", badge: "🥗 RENDAH KALORI", cal: 320, protein: 12, carbs: 20, fat: 22, image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=800" },
+                    { id: 5, title: "Apel & Selai Kacang", badge: "🍎 CEMILAN", cal: 180, protein: 5, carbs: 25, fat: 9, image: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?q=80&w=800" }
+                ],
 
-        <hr>
+                init() {
+                    // 1. Siapkan wadah kosong untuk seluruh minggu
+                    @foreach($weekDates as $date)
+                        this.plans['{{ $date->format('Y-m-d') }}'] = {
+                            'Sarapan': null, 'Makan Siang': null, 'Makan Malam': null, 'Cemilan': null
+                        };
+                    @endforeach
 
-        <button class="w-full text-left text-sm text-slate-700">
-            ▣ Duplikat Rencana Senin
-        </button>
+                    // 2. INJEKSI DATA MYSQL KE DALAM ALPINE.JS
+                    @if(isset($plannedFoods) && $plannedFoods->count() > 0)
+                        @foreach($plannedFoods as $plan)
+                            if (this.plans['{{ $plan->plan_date }}']) {
+                                this.plans['{{ $plan->plan_date }}']['{{ $plan->meal_type }}'] = {
+                                    title: '{{ $plan->food_name }}',
+                                    cal: {{ $plan->calories }},
+                                    protein: {{ $plan->protein ?? 0 }},
+                                    // Berikan placeholder gambar agar UI tidak rusak
+                                    image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=800' 
+                                };
+                            }
+                        @endforeach
+                    @endif
+                },
 
-        <button class="w-full text-left text-sm text-slate-700">
-            ⇩ Ekspor PDF untuk Klien
-        </button>
+                openRecipeSelector(category) {
+                    this.activeCategory = category;
+                    this.isModalOpen = true;
+                },
 
-        <a href="{{ route('nutritionist.putri') }}"
-           class="block w-full bg-emerald-800 text-white rounded-lg py-3 font-black text-center">
-            ▷ Selesaikan & Bagikan
-        </a>
+                removeRecipe(category) {
+                    // Hanya menghapus dari tampilan sementara, untuk menghapus dari DB butuh route khusus
+                    this.plans[this.activeDate][category] = null;
+                    alert("Menu dihapus dari tampilan. (Fitur hapus permanen dari Database akan segera hadir!)");
+                },
 
-    </div>
+                openRecipeDetails(recipe) {
+                    alert("Menampilkan detail " + recipe.title);
+                },
 
-</div>
-
-        </section>
-
-    </main>
-
-</div>
-
-</body>
-</html>
+                getDailyTotal(nutrient) {
+                    let total = 0;
+                    let todayPlan = this.plans[this.activeDate];
+                    if(todayPlan) {
+                        ['Sarapan', 'Makan Siang', 'Makan Malam', 'Cemilan'].forEach(cat => {
+                            if(todayPlan[cat] && todayPlan[cat][nutrient]) {
+                                total += todayPlan[cat][nutrient];
+                            }
+                        });
+                    }
+                    return total;
+                }
+            }));
+        });
+    </script>
+    <style>.custom-scrollbar::-webkit-scrollbar { display: none; } .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }</style>
+</x-app-layout>

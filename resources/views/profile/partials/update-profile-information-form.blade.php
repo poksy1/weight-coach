@@ -1,64 +1,94 @@
-<section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Profile Information') }}
-        </h2>
-
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __("Update your account's profile information and email address.") }}
-        </p>
-    </header>
-
-    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
-        @csrf
-    </form>
-
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+<section class="w-full">
+    <form method="post" action="{{ route('profile.update') }}" class="w-full">
         @csrf
         @method('patch')
 
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-2 space-y-8">
+                
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-14 h-14 rounded-2xl bg-[#e9fbf0] text-[#008f5d] flex items-center justify-center text-2xl shadow-inner">👤</div>
+                        <div>
+                            <h3 class="text-2xl font-black text-[#003d29]">Informasi Akun</h3>
+                            <p class="text-xs text-gray-400 font-medium mt-1">Perbarui nama pengguna dan alamat email terdaftarmu.</p>
+                        </div>
+                    </div>
 
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-2">Nama Lengkap</label>
+                            <input type="text" name="name" value="{{ old('name', $user->name) }}" required class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-bold text-gray-800 outline-none focus:ring-2 focus:ring-[#008f5d] focus:bg-white transition-all shadow-sm">
+                            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-2">Alamat Email</label>
+                            <input type="email" name="email" value="{{ old('email', $user->email) }}" required class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-bold text-gray-800 outline-none focus:ring-2 focus:ring-[#008f5d] focus:bg-white transition-all shadow-sm">
+                            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+                        </div>
+                    </div>
+                </div>
 
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
-                        {{ __('Your email address is unverified.') }}
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-2xl shadow-inner">⚖️</div>
+                        <div>
+                            <h3 class="text-2xl font-black text-[#003d29]">Data Fisik</h3>
+                            <p class="text-xs text-gray-400 font-medium mt-1">Digunakan untuk menghitung BMI & Kebutuhan Kalorimu.</p>
+                        </div>
+                    </div>
 
-                        <button form="send-verification" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-2">Berat Badan (kg)</label>
+                            <input type="number" step="0.1" name="weight" value="{{ old('weight', $user->weight) }}" required class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-bold text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-sm" placeholder="Misal: 65">
+                            <x-input-error class="mt-2" :messages="$errors->get('weight')" />
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-2">Tinggi Badan (cm)</label>
+                            <input type="number" step="0.1" name="height" value="{{ old('height', $user->height) }}" required class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-bold text-gray-800 outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-sm" placeholder="Misal: 170">
+                            <x-input-error class="mt-2" :messages="$errors->get('height')" />
+                        </div>
+                    </div>
+                </div>
 
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600 dark:text-green-400">
-                            {{ __('A new verification link has been sent to your email address.') }}
-                        </p>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 sticky top-8">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-2xl shadow-inner">🎯</div>
+                        <div>
+                            <h3 class="text-xl font-black text-[#003d29]">Target Diet</h3>
+                            <p class="text-xs text-gray-400 font-medium mt-1">Kalkulasi kalori otomatis.</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <label class="block text-[10px] font-extrabold text-gray-400 uppercase tracking-widest mb-2">Tujuan Penggunaan</label>
+                        <select name="goal" required class="w-full bg-slate-50 border border-gray-200 rounded-xl px-4 py-3.5 text-sm font-bold text-gray-800 outline-none focus:ring-2 focus:ring-rose-500 focus:bg-white transition-all shadow-sm appearance-none cursor-pointer">
+                            <option value="lose" {{ old('goal', $user->goal) == 'lose' ? 'selected' : '' }}>📉 Menurunkan Berat (Defisit)</option>
+                            <option value="maintain" {{ old('goal', $user->goal) == 'maintain' ? 'selected' : '' }}>⚖️ Maintain Weight (Seimbang)</option>
+                            <option value="gain" {{ old('goal', $user->goal) == 'gain' ? 'selected' : '' }}>📈 Menaikkan Berat (Surplus)</option>
+                        </select>
+                        <div class="bg-slate-50 border border-gray-100 p-4 rounded-xl mt-3">
+                            <p class="text-[10px] text-gray-500 font-medium leading-relaxed">Pilih <strong>"Maintain Weight"</strong> jika Anda hanya ingin memantau kecukupan gizi tanpa mengubah bobot badan saat ini.</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-[#008f5d] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#003d29] hover:shadow-lg hover:-translate-y-1 transition-all duration-300 shadow-md flex justify-center items-center gap-2">
+                        <span>SIMPAN PERUBAHAN</span>
+                    </button>
+                    
+                    @if (session('status') === 'profile-updated')
+                        <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 4000)" class="mt-4 bg-[#e9fbf0] border border-[#c1ecd4] rounded-xl p-3 text-center">
+                            <p class="text-xs text-[#008f5d] font-bold">✨ Data berhasil diperbarui!</p>
+                        </div>
                     @endif
                 </div>
-            @endif
-        </div>
+            </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-            @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600 dark:text-gray-400"
-                >{{ __('Saved.') }}</p>
-            @endif
         </div>
     </form>
 </section>
